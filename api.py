@@ -83,10 +83,29 @@ def load_all_predictions() -> list[dict]:
 
 def get_matches(min_alloc: float = 2000.0) -> list[dict]:
     """Live matches, computed with the real economic-lot-threshold logic
-    from matching.py — not a separate implementation."""
+    from matching.py — not a separate implementation.
+
+    matching.py returns {plant_id, allocated_quantity, ...}. The frontend
+    (frontend/src/App.jsx) expects {matched_plant_id, matched_supply, ...}.
+    Alias here at the API boundary instead of renaming inside matching.py,
+    so the matching module's field names stay stable for anything else
+    that reads it directly (e.g. the `matches` table via matching.py's
+    own --dry-run / DB write path).
+    """
     districts = load_all_districts()
     plants = load_all_plants()
-    return compute_matches(districts, plants, min_alloc=min_alloc)
+    raw = compute_matches(districts, plants, min_alloc=min_alloc)
+    return [
+        {
+            "district": m["district"],
+            "matched_plant_id": m["plant_id"],
+            "matched_supply": m["allocated_quantity"],
+            "distance_km": m["distance_km"],
+            "pickup_order": m["pickup_order"],
+            "status": m["status"],
+        }
+        for m in raw
+    ]
 
 
 def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
@@ -95,7 +114,7 @@ def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
 
     used = {p["plant_id"]: 0.0 for p in plants}
     for m in matches:
-        used[m["plant_id"]] += m["allocated_quantity"]
+        used[m["matched_plant_id"]] += m["matched_supply"]
 
     result = []
     for p in plants:
@@ -158,7 +177,7 @@ def get_plant(plant_id: str):
     for p in get_plant_utilization():
         if p["plant_id"] == plant_id:
             matched_districts = [
-                m["district"] for m in get_matches() if m["plant_id"] == plant_id
+                m["district"] for m in get_matches() if m["matched_plant_id"] == plant_id
             ]
             return {**p, "matched_districts": matched_districts}
     raise HTTPException(status_code=404, detail=f"Plant '{plant_id}' not found")

@@ -19,7 +19,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from main import app
+from api import app
 
 OUT = Path(__file__).resolve().parent / "api-contract.json"
 
