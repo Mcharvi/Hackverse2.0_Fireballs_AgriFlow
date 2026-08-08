@@ -8,9 +8,9 @@ import Hero from "./components/Hero.jsx";
 import AIAssistantPanel from "./components/AIAssistantPanel.jsx";
 
 // Simple 3-color supply-tier + map palette (matches styles.css tokens).
-const TIER_COLORS = { High: "#1e5631", Medium: "#ffd100", Low: "#c9c9c9" };
+const TIER_COLORS = { High: "#1e5631", Medium: "#4caf50", Low: "#c9c9c9" };
 const PLANT_COLOR = "#1e5631";
-const SIM_COLOR = "#ffd100";
+const SIM_COLOR = "#4caf50";
 
 function fmt(n) {
   return (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
@@ -147,7 +147,7 @@ export default function App() {
       L.circleMarker([p.latitude, p.longitude], {
         radius: 9,
         color: PLANT_COLOR,
-        fillColor: "#ffd100",
+        fillColor: "#4caf50",
         fillOpacity: 1,
         weight: 2,
       })
@@ -398,7 +398,7 @@ export default function App() {
                   <span className="swatch" style={{ background: TIER_COLORS.Medium }} />
                   Medium
                   <span className="swatch" style={{ background: TIER_COLORS.Low }} />
-                  Low. Yellow dots are plants; green lines show today's matched routes.
+                  Low. Green dots are plants; green lines show today's matched routes.
                 </p>
                 <p className="units-note">
                   All quantities are dimensionless dataset biomass units (not tonnes).

@@ -13,9 +13,7 @@ export default function Hero({ summary, leftover, onExplore, onSimulate }) {
           Agri<span className="flow">Flow</span>
         </h1>
         <p className="hero-tagline">
-          AgriFlow turns crop residue that would otherwise be burned in the
-          field into routed, matched, and dispatched biomass — tracked from
-          district to plant on one live map.
+          AgriFlow turns crop residue into routed, matched biomass, tracked from district to plant on one live map.
         </p>
         <div className="hero-actions">
           <button className="hero-btn solid" onClick={onExplore}>
@@ -45,7 +43,7 @@ export default function Hero({ summary, leftover, onExplore, onSimulate }) {
           </div>
           <div className="hero-stat">
             <span className="hero-stat-label">Leftover — would burn</span>
-            <span className="hero-stat-value accent-brown">
+            <span className="hero-stat-value accent">
               {fmt(leftover)}
               <span className="hero-stat-unit">units</span>
             </span>
