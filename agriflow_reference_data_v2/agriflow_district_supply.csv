@@ -1,0 +1,21 @@
+district,latitude,longitude,baseline_supply_2017,rolling_3yr_supply,trend_forecast_2018,predicted_supply_2018,trend_r2,confidence_score_heuristic,confidence_label,cropland_2017,avg_precipitation_2017,avg_elevation_2017,site_count_2017,residue_type,residue_type_source,harvest_window,supply_tier
+Amreli,21.480991,71.329378,37242.91,33540.806,32989.178,33375.317,0.023,47.7,Low,7465.5,8.395,127.086,116,Groundnut shell / cotton stalk,official district crop profile,Sep–Nov (demo operational window),High
+Rajkot,22.122745,70.709604,44996.159,21467.252,22480.176,21771.129,0.037,32.0,Low,6641.5,6.565,135.914,105,Groundnut shell / cotton stalk,official crop profile,Sep–Nov (demo operational window),High
+Surendranagar,22.892453,71.594366,22698.586,20535.134,20879.435,20638.424,0.063,54.8,Low,5338.0,4.971,64.312,96,Groundnut shell / cotton stalk,official crop profile,Sep–Nov (demo operational window),High
+Morbi,22.892876,70.994324,23320.198,19312.785,19386.985,19335.045,0.096,51.8,Low,4143.5,4.84,56.091,77,Mixed agricultural residue,demo assumption,Sep–Nov (demo operational window),High
+Bhavnagar,21.621486,71.956497,24931.391,19390.101,18307.13,19065.21,0.06,50.1,Low,4625.0,8.734,41.33,100,Groundnut shell,official crop profile,Sep–Nov (demo operational window),High
+Ahmadabad,22.862573,72.16126,17041.899,17461.897,16075.469,17045.968,0.103,58.7,Moderate,5619.0,5.757,23.686,102,Rice straw / mixed residue,official crop profile,Sep–Nov (demo operational window),High
+Jamnagar,22.459506,70.260924,25918.495,15548.442,18176.552,16336.875,0.076,39.5,Low,3691.5,5.821,53.167,72,Groundnut shell / cotton stalk,official district crop profile,Sep–Nov (demo operational window),High
+Surat,21.354159,73.02082,9735.6,10297.089,11023.635,10515.053,0.204,61.9,Moderate,2407.5,11.52,51.183,60,Rice straw,official crop profile,Sep–Nov (demo operational window),Medium
+Patan,23.843651,71.73231,8750.403,10416.458,10315.406,10386.142,0.112,56.8,Moderate,5347.5,4.854,48.299,87,Cumin/fennel residue,official crop profile,Sep–Nov (demo operational window),Medium
+Kheda,22.932698,72.947661,7675.523,8086.568,8499.148,8210.342,0.319,65.8,Moderate,3611.5,7.291,61.34,47,Rice straw,official crop profile,Sep–Nov (demo operational window),Medium
+Chhota Udaipur,22.288349,73.890618,7742.487,7965.956,8634.648,8166.564,0.044,53.4,Low,1624.0,10.133,181.298,57,Pulse residue,official crop profile,Sep–Nov (demo operational window),Medium
+Gandhinagar,23.270535,72.646102,6845.399,7698.58,7793.09,7726.933,0.013,53.9,Low,3441.5,6.45,79.894,47,Mixed agricultural residue,demo assumption,Sep–Nov (demo operational window),Medium
+Sabar Kantha,23.836993,72.993614,6900.154,5802.356,6256.084,5938.474,0.295,63.1,Moderate,2198.0,7.656,198.719,32,Castor stalk / mixed residue,official crop profile,Sep–Nov (demo operational window),Medium
+Tapi,21.296815,73.726413,4109.696,4507.959,5038.179,4667.025,0.302,63.4,Moderate,2740.0,11.262,121.578,64,Mixed agricultural residue,demo assumption,Sep–Nov (demo operational window),Low
+Porbandar,21.727127,69.718608,4519.609,3138.89,4006.87,3399.284,0.091,45.5,Low,2094.0,6.805,36.872,47,Mixed agricultural residue,demo assumption,Sep–Nov (demo operational window),Low
+Navsari,20.892172,73.037348,2646.733,2939.821,3112.068,2991.495,0.172,59.2,Moderate,804.0,17.04,33.061,33,Rice straw,official crop profile,Sep–Nov (demo operational window),Low
+Valsad,20.536067,73.096464,2082.183,2241.89,2207.698,2231.632,0.094,57.1,Moderate,147.5,21.846,104.3,30,Rice straw,official crop profile,Sep–Nov (demo operational window),Low
+Mahisagar,23.289337,73.632036,1800.968,1997.984,2045.052,2012.104,0.016,55.4,Moderate,1525.0,9.153,143.607,28,Pulse residue,demo assumption,Sep–Nov (demo operational window),Low
+Dohad,22.892283,74.107701,608.354,579.025,567.488,575.564,0.04,58.8,Moderate,1422.5,10.408,275.233,30,Pulse residue,official crop profile,Sep–Nov (demo operational window),Low
+The Dangs,20.892686,73.644758,97.63,113.172,130.249,118.295,0.234,60.4,Moderate,62.5,14.855,272.211,19,Mixed agricultural residue,demo assumption,Sep–Nov (demo operational window),Low
