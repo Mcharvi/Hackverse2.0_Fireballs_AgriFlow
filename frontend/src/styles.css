@@ -587,6 +587,77 @@ body {
 }
 
 /* ==========================================================================
+   Route economics — sale profit vs transport cost
+   ========================================================================== */
+.econ {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 28px 60px;
+}
+
+.econ-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.econ-heading h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  margin: 0;
+}
+
+.econ-heading p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.econ-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  margin-bottom: 20px;
+}
+
+.econ-stat {
+  padding: 16px 20px;
+  border-right: 1px solid var(--border-soft);
+}
+
+.econ-stat:last-child {
+  border-right: none;
+}
+
+.econ-stat-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.econ-stat b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+}
+
+.econ-good {
+  color: var(--accent);
+}
+
+.econ-bad {
+  color: var(--text);
+}
+
+/* ==========================================================================
    Map + side panel layout
    ========================================================================== */
 .layout {
@@ -1007,5 +1078,17 @@ dd {
     right: 12px;
     left: 12px;
     width: auto;
+  }
+
+  .econ-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .econ-stat:nth-child(2n) {
+    border-right: none;
+  }
+
+  .econ-stat {
+    border-bottom: 1px solid var(--border-soft);
   }
 }

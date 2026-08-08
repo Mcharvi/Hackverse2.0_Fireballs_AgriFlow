@@ -25,6 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from matching import compute_matches  # reuse Person B's real matching logic
+from economics import compute_economics  # sale-profit vs transport-cost layer
 from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -114,6 +115,28 @@ def get_matches(min_alloc: float = 2000.0) -> list[dict]:
     ]
 
 
+def get_economics(
+    sale_price_per_unit: float = 10.0,
+    cost_per_km_per_unit: float = 0.05,
+    round_trip_factor: float = 2.0,
+    min_alloc: float = 2000.0,
+    top_n: int = 5,
+) -> dict:
+    """Route economics — a pure function of the same matches the rest of
+    the app shows. All parameters are demo rates (see economics.py); the
+    module's compute_economics() does the actual math."""
+    districts = load_all_districts()
+    plants = load_all_plants()
+    raw = compute_matches(districts, plants, min_alloc=min_alloc)
+    return compute_economics(
+        raw,
+        sale_price_per_unit=sale_price_per_unit,
+        cost_per_km_per_unit=cost_per_km_per_unit,
+        round_trip_factor=round_trip_factor,
+        top_n=top_n,
+    )
+
+
 def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
     plants = load_all_plants()
     matches = get_matches(min_alloc=min_alloc)
@@ -194,6 +217,30 @@ def get_matches_route():
     return get_matches()
 
 
+@app.get("/economics")
+def get_economics_route(
+    sale_price_per_unit: float = 10.0,
+    cost_per_km_per_unit: float = 0.05,
+    round_trip_factor: float = 2.0,
+    min_alloc: float = 2000.0,
+    top_n: int = 5,
+):
+    """Sale-profit vs transport-cost comparison for the current match plan.
+
+    GET (no body, cacheable) so the frontend can fetch it on load and the
+    LLM assistant can read the same numbers. Parameters are demo rates,
+    overridable via query string for live sensitivity (e.g.
+    ?sale_price_per_unit=8&cost_per_km_per_unit=0.3).
+    """
+    return get_economics(
+        sale_price_per_unit=sale_price_per_unit,
+        cost_per_km_per_unit=cost_per_km_per_unit,
+        round_trip_factor=round_trip_factor,
+        min_alloc=min_alloc,
+        top_n=top_n,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Assistant — real function-calling layer via OpenAI.
 # See llm_assistant.py: question -> model picks a function -> we run it
@@ -218,6 +265,7 @@ def assistant_query(payload: AssistantQuery):
         load_all_plants=load_all_plants,
         get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
+        get_economics=get_economics,
     )
 
 
@@ -236,6 +284,7 @@ def assistant_insights():
         load_all_plants=load_all_plants,
         get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
+        get_economics=get_economics,
     )
 
 

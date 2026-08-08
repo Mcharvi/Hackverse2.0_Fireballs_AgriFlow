@@ -41,6 +41,12 @@ export default function App() {
   const [insights, setInsights] = useState([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
 
+  // Route economics (sale profit vs transport cost) — /economics.
+  // Loaded in its own effect with its own loading/error state so a slow or
+  // failing economics call never blocks the map/panel/chat.
+  const [economics, setEconomics] = useState(null);
+  const [economicsLoading, setEconomicsLoading] = useState(true);
+
   // Plant siting simulator state. simMode = user is in "click the map to
   // place a plant" mode. simMarker = the placed {lat, lng}, null until they
   // click. simResult = last /simulate/plant response, cleared whenever the
@@ -108,6 +114,16 @@ export default function App() {
       ro.disconnect();
       cancelAnimationFrame(raf);
     };
+  }, []);
+
+  // Route economics, separate from the main data load on purpose — same
+  // rationale as insights: a slow/failed call shouldn't break the map.
+  useEffect(() => {
+    api
+      .economics()
+      .then(setEconomics)
+      .catch(() => setEconomics(null)) // fail silent — section just won't render
+      .finally(() => setEconomicsLoading(false));
   }, []);
 
   // Draw the map once the data is loaded.
@@ -409,6 +425,8 @@ export default function App() {
         </div>
       </section>
 
+      <EconomicsSection economics={economics} loading={economicsLoading} />
+
       {aiOpen && (
         <AIAssistantPanel
           chat={chat}
@@ -541,5 +559,57 @@ function PlantCard({ p, onClose }) {
         Close
       </button>
     </div>
+  );
+}
+
+// Route economics section — sale profit vs transport cost. Renders only
+// when /economics responds; a failed/slow call leaves it out entirely
+// (same fail-silent rule as the insights strip).
+function EconomicsSection({ economics, loading }) {
+  if (loading || !economics) return null;
+  const s = economics.summary || {};
+  const breakeven = economics.breakeven_distance_km;
+
+  const money = (n) =>
+    (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+  return (
+    <section className="econ">
+      <div className="econ-heading">
+        <h2>Is it worth collecting?</h2>
+        <p>
+          Sale profit vs transport cost per matched route, at demo rates
+          (price {money(economics.parameters?.sale_price_per_unit)} / unit,
+          haulage {economics.parameters?.cost_per_km_per_unit} / km / unit,
+          round trip ×{economics.parameters?.round_trip_factor}).
+        </p>
+      </div>
+
+      <div className="econ-stats">
+        <div className="econ-stat">
+          <span className="econ-stat-label">Revenue</span>
+          <b>{money(s.revenue)}</b>
+        </div>
+        <div className="econ-stat">
+          <span className="econ-stat-label">Transport cost</span>
+          <b>{money(s.transport_cost)}</b>
+        </div>
+        <div className="econ-stat">
+          <span className="econ-stat-label">Net profit</span>
+          <b className={s.profit >= 0 ? "econ-good" : "econ-bad"}>
+            {money(s.profit)}
+          </b>
+        </div>
+        <div className="econ-stat">
+          <span className="econ-stat-label">Margin</span>
+          <b>{s.margin_pct ?? 0}%</b>
+        </div>
+        <div className="econ-stat">
+          <span className="econ-stat-label">Breakeven haul</span>
+          <b>{breakeven != null ? `${breakeven} km` : "—"}</b>
+        </div>
+      </div>
+
+    </section>
   );
 }

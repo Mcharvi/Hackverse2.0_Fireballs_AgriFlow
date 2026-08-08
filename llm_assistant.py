@@ -123,6 +123,27 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_route_economics",
+            "description": "Get the biomass sale-profit vs transport-cost analysis for the current match plan: totals (revenue, transport cost, profit, margin), breakeven distance, and the least/most profitable district-to-plant routes. Money values use demo rates (see parameters in the result).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "n": {"type": "integer", "description": "How many worst/best routes to include (default 5)"}
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_plant_profitability",
+            "description": "Rank plants by total profit from their matched routes (revenue minus transport cost), highest profit first, including margin and routes served. Money values use demo rates.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
 ]
 
 
@@ -206,6 +227,31 @@ def _get_nearest_plant(args, load_all_districts, load_all_plants, **_):
     return result
 
 
+def _get_route_economics(args, get_economics, **_):
+    n = max(1, int(args.get("n", 5)))
+    result = get_economics(top_n=n)
+    return {
+        "summary": result["summary"],
+        "breakeven_distance_km": result["breakeven_distance_km"],
+        "parameters": result["parameters"],
+        "worst_routes": result["worst_routes"],
+        "best_routes": result["best_routes"],
+    }
+
+
+def _get_plant_profitability(_args, get_economics, **_):
+    result = get_economics()
+    by_plant = result["by_plant"]
+    ranked = sorted(
+        ({"plant_id": pid, **agg} for pid, agg in by_plant.items()),
+        key=lambda p: -p["profit"],
+    )
+    return {
+        "plants_ranked_by_profit": ranked,
+        "parameters": result["parameters"],
+    }
+
+
 def _get_plant_details(args, get_plant_utilization, **_):
     query = args.get("plant", "")
     plants = get_plant_utilization()
@@ -230,6 +276,8 @@ DISPATCH = {
     "get_top_supply_districts": _get_top_supply_districts,
     "get_nearest_plant": _get_nearest_plant,
     "get_plant_details": _get_plant_details,
+    "get_route_economics": _get_route_economics,
+    "get_plant_profitability": _get_plant_profitability,
 }
 
 
@@ -240,6 +288,7 @@ def answer_question(
     load_all_plants,
     get_plant_utilization,
     get_matches,
+    get_economics=None,
     history: list[dict] | None = None,
 ) -> dict:
     """Main entry point.
@@ -280,16 +329,20 @@ def answer_question(
                 args = {}
 
             handler = DISPATCH.get(fn_name)
-            result = (
-                handler(
-                    args,
-                    load_all_districts=load_all_districts,
-                    load_all_plants=load_all_plants,
-                    get_plant_utilization=get_plant_utilization,
-                    get_matches=get_matches,
+            if handler and fn_name in ("get_route_economics", "get_plant_profitability") and get_economics is None:
+                result = {"error": "Economics data is not available in this context."}
+            else:
+                result = (
+                    handler(
+                        args,
+                        load_all_districts=load_all_districts,
+                        load_all_plants=load_all_plants,
+                        get_plant_utilization=get_plant_utilization,
+                        get_matches=get_matches,
+                        get_economics=get_economics,
+                    )
+                    if handler else {"error": f"Unknown function '{fn_name}'"}
                 )
-                if handler else {"error": f"Unknown function '{fn_name}'"}
-            )
             functions_called.append({"function": fn_name, "args": args})
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
 
@@ -325,6 +378,7 @@ def generate_insights(
     load_all_plants,
     get_plant_utilization,
     get_matches,
+    get_economics=None,
 ) -> dict:
     """Generate 2-3 proactive insight bullets for dashboard load.
 
@@ -341,6 +395,11 @@ def generate_insights(
 
     matched_names = {m["district"] for m in matches}
     unmatched = [d["district"] for d in districts if d["district"] not in matched_names]
+
+    # Route economics (best effort — demo rates, see economics.py). If the
+    # loader isn't wired in, the payload just omits it and the LLM/fallback
+    # never mentions it.
+    economics = get_economics() if get_economics is not None else None
 
     top_districts = sorted(districts, key=lambda d: -d["predicted_supply_2018"])[:5]
     plants_by_util = sorted(plants, key=lambda p: p["utilization_pct"])
@@ -363,6 +422,16 @@ def generate_insights(
         "total_matched_units": round(total_matched, 1),
         "leftover_unmatched_units": round(leftover, 1),
     }
+    if economics:
+        data_payload["economics"] = {
+            "total_profit": economics["summary"]["profit"],
+            "total_revenue": economics["summary"]["revenue"],
+            "total_transport_cost": economics["summary"]["transport_cost"],
+            "overall_margin_pct": economics["summary"]["margin_pct"],
+            "unprofitable_routes": economics["summary"]["unprofitable_routes"],
+            "worst_route": (economics["worst_routes"] or [None])[0],
+            "note": "Money values use demo rates (sale price, cost/km/unit, round-trip factor) — see /economics.",
+        }
 
     try:
         response = _client.chat.completions.create(
@@ -408,4 +477,13 @@ def _fallback_insights(data_payload: dict) -> list[str]:
     unmatched = data_payload.get("unmatched_districts") or []
     if unmatched:
         out.append(f"{len(unmatched)} district(s) have no matched plant yet.")
+    economics = data_payload.get("economics") or {}
+    worst = economics.get("worst_route")
+    if worst:
+        out.append(
+            f"{worst['district']} is the least profitable matched route "
+            f"at {worst['margin_pct']}% margin under demo rates."
+        )
+    elif economics.get("unprofitable_routes") == 0 and economics.get("total_profit") is not None:
+        out.append("All matched routes are profitable under the current demo rates.")
     return out[:3] or ["No insights available right now."]
