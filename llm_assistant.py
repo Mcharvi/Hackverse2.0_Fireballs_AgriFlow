@@ -24,8 +24,11 @@ _client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 SYSTEM_PROMPT = (
     "You are AgriFlow's assistant, a biomass supply-chain tool. Use the "
     "provided functions to look up real data before answering — never guess "
-    "numbers. Quantities are dimensionless dataset biomass units, not "
-    "tonnes. Keep answers to 1-3 plain sentences."
+    "numbers. You can look up: a district's predicted supply, a plant's "
+    "capacity/utilization, the nearest plant to a district (with distance "
+    "in km), unmatched districts, and top-supply districts. Quantities are "
+    "dimensionless dataset biomass units, not tonnes. Keep answers to "
+    "1-3 plain sentences."
 )
 
 TOOLS = [
@@ -72,6 +75,34 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_nearest_plant",
+            "description": "Find the nearest plant to a named district, by straight-line distance in km, including that plant's capacity. Use this for any 'how far' or 'nearest plant' question.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "district": {"type": "string", "description": "District name, e.g. 'Amreli'"}
+                },
+                "required": ["district"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_plant_details",
+            "description": "Get a plant's capacity, location, current utilization, and status by plant name or plant_id (e.g. 'P1' or 'AgriFlow Plant 1').",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "plant": {"type": "string", "description": "Plant name or plant_id"}
+                },
+                "required": ["plant"],
+            },
+        },
+    },
 ]
 
 
@@ -105,15 +136,50 @@ def _get_top_supply_districts(args, load_all_districts, **_):
     return {"top_districts": districts[:n]}
 
 
+def _get_nearest_plant(args, load_all_districts, load_all_plants, **_):
+    from matching import haversine_km  # reuse the one distance implementation, no duplicate math
+
+    district_name = args.get("district", "")
+    districts = load_all_districts()
+    d = next((x for x in districts if x["district"].lower() == district_name.lower()), None)
+    if not d:
+        return {"error": f"No district named '{district_name}' found."}
+
+    plants = load_all_plants()
+    ranked = sorted(
+        plants,
+        key=lambda p: haversine_km(d["latitude"], d["longitude"], p["latitude"], p["longitude"]),
+    )
+    nearest = ranked[0]
+    distance = haversine_km(d["latitude"], d["longitude"], nearest["latitude"], nearest["longitude"])
+    return {
+        "district": d["district"],
+        "nearest_plant_name": nearest["plant_name"],
+        "nearest_plant_id": nearest["plant_id"],
+        "distance_km": round(distance, 1),
+        "plant_annual_capacity": nearest["annual_capacity"],
+    }
+
+
+def _get_plant_details(args, get_plant_utilization, **_):
+    query = args.get("plant", "").lower()
+    for p in get_plant_utilization():
+        if p["plant_id"].lower() == query or p["plant_name"].lower() == query:
+            return p
+    return {"error": f"No plant matching '{args.get('plant', '')}' found."}
+
+
 DISPATCH = {
     "get_district_supply": _get_district_supply,
     "get_underused_plants": _get_underused_plants,
     "get_unmatched_districts": _get_unmatched_districts,
     "get_top_supply_districts": _get_top_supply_districts,
+    "get_nearest_plant": _get_nearest_plant,
+    "get_plant_details": _get_plant_details,
 }
 
 
-def answer_question(question: str, *, load_all_districts, get_plant_utilization, get_matches) -> dict:
+def answer_question(question: str, *, load_all_districts, load_all_plants, get_plant_utilization, get_matches) -> dict:
     """Main entry point. Data-loading functions are passed in from api.py
     so this module never talks to the DB directly — one source of truth."""
     messages = [
@@ -143,7 +209,7 @@ def answer_question(question: str, *, load_all_districts, get_plant_utilization,
 
     handler = DISPATCH.get(fn_name)
     result = (
-        handler(args, load_all_districts=load_all_districts,
+        handler(args, load_all_districts=load_all_districts, load_all_plants=load_all_plants,
                  get_plant_utilization=get_plant_utilization, get_matches=get_matches)
         if handler else {"error": f"Unknown function '{fn_name}'"}
     )
