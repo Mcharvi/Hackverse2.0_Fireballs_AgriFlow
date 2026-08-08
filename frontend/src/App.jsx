@@ -3,8 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { api } from "./api.js";
+import Navbar from "./components/Navbar.jsx";
+import Hero from "./components/Hero.jsx";
+import AIAssistantPanel from "./components/AIAssistantPanel.jsx";
 
-const TIER_COLORS = { High: "#ef4444", Medium: "#f59e0b", Low: "#22c55e" };
+// Simple 3-color supply-tier + map palette (matches styles.css tokens).
+const TIER_COLORS = { High: "#1e5631", Medium: "#ffd100", Low: "#c9c9c9" };
+const PLANT_COLOR = "#1e5631";
+const SIM_COLOR = "#ffd100";
 
 function fmt(n) {
   return (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
@@ -14,6 +20,7 @@ export default function App() {
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
   const layersRef = useRef({ districts: null, plants: null, routes: null });
+  const dashboardRef = useRef(null);
 
   const [districts, setDistricts] = useState([]);
   const [plants, setPlants] = useState([]);
@@ -24,6 +31,9 @@ export default function App() {
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  // AI assistant popup open/closed.
+  const [aiOpen, setAiOpen] = useState(false);
 
   // Proactive insight bullets — fetched once on load, independent of the
   // main dashboard data (see api.insights()). Kept as its own loading/error
@@ -73,6 +83,33 @@ export default function App() {
       .finally(() => setInsightsLoading(false));
   }, []);
 
+  // Leaflet measures its container once, at L.map() construction time, and
+  // caches that size — it does NOT auto-detect later layout/CSS changes.
+  // Our map sits inside a card whose height depends on the surrounding page
+  // (hero, fonts loading, etc.), so the very first measurement can lock in
+  // a size smaller than the actual container, leaving a dead gap below the
+  // tiles. A ResizeObserver + invalidateSize() keeps it honest whenever the
+  // container's real size changes (mount, font load reflow, window resize).
+  useEffect(() => {
+    if (!mapElRef.current || !mapRef.current) return;
+    const map = mapRef.current;
+    const el = mapElRef.current;
+
+    const ro = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    ro.observe(el);
+
+    // Also catch the very first paint, in case the container's height
+    // settles a frame or two after mount (e.g. while web fonts load).
+    const raf = requestAnimationFrame(() => map.invalidateSize());
+
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   // Draw the map once the data is loaded.
   useEffect(() => {
     if (!mapElRef.current) return;
@@ -81,6 +118,9 @@ export default function App() {
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
       }).addTo(mapRef.current);
+      // Re-measure right after creation too — the container may not have
+      // its final height in the same tick the map was constructed.
+      requestAnimationFrame(() => mapRef.current.invalidateSize());
     }
     const map = mapRef.current;
     ["districts", "plants", "routes"].forEach((k) => {
@@ -93,7 +133,7 @@ export default function App() {
         radius: 6 + Math.sqrt(d.predicted_supply_2018) / 45,
         color: TIER_COLORS[d.supply_tier] || "#888888",
         fillColor: TIER_COLORS[d.supply_tier] || "#888888",
-        fillOpacity: 0.7,
+        fillOpacity: 0.75,
         weight: 1,
       })
         .bindTooltip(`${d.district} — ${fmt(d.predicted_supply_2018)} units`)
@@ -106,9 +146,9 @@ export default function App() {
     plants.forEach((p) => {
       L.circleMarker([p.latitude, p.longitude], {
         radius: 9,
-        color: "#3b82f6",
-        fillColor: "#3b82f6",
-        fillOpacity: 0.9,
+        color: PLANT_COLOR,
+        fillColor: "#ffd100",
+        fillOpacity: 1,
         weight: 2,
       })
         .bindTooltip(`${p.plant_name} — ${fmt(p.annual_capacity)} units/yr`)
@@ -126,7 +166,7 @@ export default function App() {
       const ppos = plantPos[m.matched_plant_id];
       if (d && ppos) {
         L.polyline([[d.latitude, d.longitude], ppos], {
-          color: "#3b82f6",
+          color: PLANT_COLOR,
           weight: 2,
           opacity: 0.55,
         })
@@ -194,7 +234,7 @@ export default function App() {
           if (d) {
             L.polyline(
               [[d.latitude, d.longitude], [simMarker.lat, simMarker.lng]],
-              { color: "#22c55e", weight: 3, opacity: 0.85, dashArray: "6 6" }
+              { color: SIM_COLOR, weight: 3, opacity: 0.85, dashArray: "6 6" }
             )
               .bindTooltip(
                 `${d.district} → simulated plant · ${fmt(m.matched_supply)} units · ${m.distance_km} km`
@@ -205,6 +245,10 @@ export default function App() {
       layersRef.current.simRoutes = routeLayer.addTo(map);
     }
   }, [simResult, simMarker, districts]);
+
+  function scrollToDashboard() {
+    dashboardRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   function toggleSimMode() {
     setSimMode((wasOn) => {
@@ -218,6 +262,11 @@ export default function App() {
       }
       return next;
     });
+  }
+
+  function handleSimulateClick() {
+    if (!simMode) toggleSimMode();
+    scrollToDashboard();
   }
 
   async function runSimulation() {
@@ -238,8 +287,6 @@ export default function App() {
     setSimRunning(false);
   }
 
-// Replace the existing `ask` function in App.jsx with this version.
-  // Only this one function changes — everything else in App.jsx stays the same.
   async function ask() {
     const q = question.trim();
     if (!q || busy) return;
@@ -267,138 +314,111 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div>
-          <h1>
-            AgriFlow <span className="accent">AI</span>
-          </h1>
-          <p className="tagline">Biomass intelligence — from fields to plants, today.</p>
+      <Navbar
+        onSimulateClick={handleSimulateClick}
+        onAskClick={() => setAiOpen((o) => !o)}
+        onDashboardClick={scrollToDashboard}
+        simActive={simMode}
+        aiOpen={aiOpen}
+      />
+
+      <Hero
+        summary={summary}
+        leftover={leftover}
+        onExplore={scrollToDashboard}
+        onSimulate={handleSimulateClick}
+      />
+
+      <section className="dashboard" id="dashboard" ref={dashboardRef}>
+        <div className="dashboard-heading">
+          <h2>Live supply &amp; routing map</h2>
+          <p>Click a district or plant to inspect it, or place a hypothetical plant.</p>
         </div>
-        {summary && (
-          <div className="stats">
-            <div>
-              <span className="stat-label">Predicted supply</span>
-              <b>{fmt(summary.total_predicted_supply_units)}</b>
-              <small>units</small>
-            </div>
-            <div>
-              <span className="stat-label">Matched</span>
-              <b>{fmt(summary.matched_units)}</b>
-              <small>units</small>
-            </div>
-            <div>
-              <span className="stat-label">Leftover</span>
-              <b className="warn">{fmt(leftover)}</b>
-              <small>would otherwise burn</small>
-            </div>
+
+        {error && (
+          <div className="error-banner">⚠ Could not reach the API: {error}</div>
+        )}
+
+        {simMode && !simMarker && (
+          <div className="sim-banner">
+            📍 Click anywhere on the map to place a hypothetical plant.
           </div>
         )}
-        <button
-          className={`sim-toggle ${simMode ? "active" : ""}`}
-          onClick={toggleSimMode}
-        >
-          {simMode ? "✕ Cancel simulation" : "📍 Simulate new plant"}
-        </button>
-      </header>
 
-      {error && (
-        <div className="error-banner">⚠ Could not reach the API: {error}</div>
-      )}
+        {/* Proactive insights strip — only renders once bullets arrive, and
+            disappears entirely (not even a placeholder) if the call fails,
+            so a slow/broken insights endpoint never leaves an empty box. */}
+        {!insightsLoading && insights.length > 0 && (
+          <div className="insights-strip">
+            <span className="insights-label">AI insights</span>
+            <ul>
+              {insights.map((text, i) => (
+                <li key={i}>{text}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {simMode && !simMarker && (
-        <div className="sim-banner">
-          📍 Click anywhere on the map to place a hypothetical plant.
-        </div>
-      )}
+        <div className="layout">
+          <div className="map-wrap">
+            <div ref={mapElRef} className="map" />
+          </div>
 
-      {/* Proactive insights strip — only renders once bullets arrive, and
-          disappears entirely (not even a placeholder) if the call fails,
-          so a slow/broken insights endpoint never leaves an empty box. */}
-      {!insightsLoading && insights.length > 0 && (
-        <div className="insights-strip">
-          <span className="insights-label">AI insights</span>
-          <ul>
-            {insights.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="layout">
-        <div className="map-wrap">
-          <div ref={mapElRef} className="map" />
-        </div>
-
-        <aside className="panel">
-          {simMarker ? (
-            <SimulatorCard
-              marker={simMarker}
-              capacity={simCapacity}
-              setCapacity={setSimCapacity}
-              name={simName}
-              setName={setSimName}
-              onRun={runSimulation}
-              onClear={() => {
-                setSimMarker(null);
-                setSimResult(null);
-                setSimError(null);
-              }}
-              running={simRunning}
-              result={simResult}
-              error={simError}
-            />
-          ) : selected ? (
-            selected.kind === "district" ? (
-              <DistrictCard d={selected.data} onClose={() => setSelected(null)} />
+          <aside className="panel">
+            {simMarker ? (
+              <SimulatorCard
+                marker={simMarker}
+                capacity={simCapacity}
+                setCapacity={setSimCapacity}
+                name={simName}
+                setName={setSimName}
+                onRun={runSimulation}
+                onClear={() => {
+                  setSimMarker(null);
+                  setSimResult(null);
+                  setSimError(null);
+                }}
+                running={simRunning}
+                result={simResult}
+                error={simError}
+              />
+            ) : selected ? (
+              selected.kind === "district" ? (
+                <DistrictCard d={selected.data} onClose={() => setSelected(null)} />
+              ) : (
+                <PlantCard p={selected.data} onClose={() => setSelected(null)} />
+              )
             ) : (
-              <PlantCard p={selected.data} onClose={() => setSelected(null)} />
-            )
-          ) : (
-            <div className="hint">
-              <h3>Click a district or plant</h3>
-              <p>
-                Districts are colored by supply tier:{" "}
-                <span className="swatch" style={{ background: TIER_COLORS.High }} />
-                High
-                <span className="swatch" style={{ background: TIER_COLORS.Medium }} />
-                Medium
-                <span className="swatch" style={{ background: TIER_COLORS.Low }} />
-                Low. Blue dots are plants; blue lines show today's matched routes.
-              </p>
-              <p className="units-note">
-                All quantities are dimensionless dataset biomass units (not tonnes).
-              </p>
-            </div>
-          )}
-        </aside>
-
-        <div className="chat">
-          <div className="chat-log">
-            {chat.length === 0 && (
-              <p className="chat-empty">
-                Ask the AI assistant — e.g. “Which district has the highest biomass?”
-              </p>
-            )}
-            {chat.map((m, i) => (
-              <div key={i} className={`msg ${m.role}`}>
-                {m.text}
+              <div className="hint">
+                <h3>Click a district or plant</h3>
+                <p>
+                  Districts are colored by supply tier:{" "}
+                  <span className="swatch" style={{ background: TIER_COLORS.High }} />
+                  High
+                  <span className="swatch" style={{ background: TIER_COLORS.Medium }} />
+                  Medium
+                  <span className="swatch" style={{ background: TIER_COLORS.Low }} />
+                  Low. Yellow dots are plants; green lines show today's matched routes.
+                </p>
+                <p className="units-note">
+                  All quantities are dimensionless dataset biomass units (not tonnes).
+                </p>
               </div>
-            ))}
-          </div>
-          <div className="chat-input">
-            <input
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && ask()}
-              placeholder="Ask about biomass, plants, or routing…"
-            />
-            <button onClick={ask} disabled={busy}>
-              {busy ? "…" : "Ask"}
-            </button>
-          </div>
+            )}
+          </aside>
         </div>
-      </div>
+      </section>
+
+      {aiOpen && (
+        <AIAssistantPanel
+          chat={chat}
+          question={question}
+          setQuestion={setQuestion}
+          busy={busy}
+          onAsk={ask}
+          onClose={() => setAiOpen(false)}
+        />
+      )}
     </div>
   );
 }

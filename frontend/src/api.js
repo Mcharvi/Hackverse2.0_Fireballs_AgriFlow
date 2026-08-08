@@ -15,15 +15,7 @@ export const api = {
   plants: () => get("/plants"),
   matches: () => get("/matches"),
   sustainability: () => get("/sustainability"),
-  // Proactive dashboard-load insight bullets — GET, no body, same answer
-  // for everyone (see api.py's /assistant/insights + llm_assistant.py's
-  // generate_insights()). Never throws visibly to the caller in practice
-  // since the backend fails soft, but we still guard here just in case.
   insights: () => get("/assistant/insights"),
-  // Plant siting simulator — POST a hypothetical plant (lat/lon/capacity),
-  // get back baseline vs simulated match summaries plus the new route set.
-  // See api.py's /simulate/plant, which just re-runs the real matching.py
-  // logic with the hypothetical plant appended to the real plant list.
   simulatePlant: async ({ latitude, longitude, annual_capacity, plant_name }) => {
     const res = await fetch(`${API_BASE}/simulate/plant`, {
       method: "POST",
@@ -33,9 +25,6 @@ export const api = {
     if (!res.ok) throw new Error(`/simulate/plant -> HTTP ${res.status}`);
     return res.json();
   },
-  // history: prior chat turns as [{ role: "user"|"assistant", content: str }, ...],
-  // oldest first, NOT including the current question. Lets the assistant
-  // resolve follow-ups like "how far is that from Amreli?"
   ask: async (question, history = []) => {
     const res = await fetch(`${API_BASE}/assistant/query`, {
       method: "POST",
