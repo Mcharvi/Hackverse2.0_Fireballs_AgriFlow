@@ -6,6 +6,7 @@ import { api } from "./api.js";
 import Navbar from "./components/Navbar.jsx";
 import Hero from "./components/Hero.jsx";
 import AIAssistantPanel from "./components/AIAssistantPanel.jsx";
+import SupplyExplorer from "./components/SupplyExplorer.jsx";
 
 // Simple 3-color supply-tier + map palette (matches styles.css tokens).
 const TIER_COLORS = { High: "#1e5631", Medium: "#4caf50", Low: "#c9c9c9" };
@@ -424,6 +425,8 @@ export default function App() {
           </aside>
         </div>
       </section>
+
+      <SupplyExplorer districts={districts} plants={plants} matches={matches} />
 
       <EconomicsSection economics={economics} loading={economicsLoading} />
 
