@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AgriFlow — API Test UI</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --border: #e0e0dc;
+    --text: #1f2320;
+    --muted: #6b6f6a;
+    --high: #2f7d4f;
+    --medium: #b98900;
+    --low: #b0413e;
+    --accent: #2f6b4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .bar input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .bar button, .status-dot-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .status {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #eee;
+  }
+  .status.ok { background: #e3f3e8; color: var(--high); }
+  .status.err { background: #f6e4e3; color: var(--low); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 0 0 12px 0;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+
+  .tier { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .tier.High { background: #e3f3e8; color: var(--high); }
+  .tier.Medium { background: #fbf0d9; color: var(--medium); }
+  .tier.Low { background: #f6e4e3; color: var(--low); }
+
+  .assistant-box {
+    grid-column: 1 / -1;
+  }
+  .assistant-answer {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f1f4f1;
+    border-radius: 6px;
+    font-size: 13px;
+    min-height: 20px;
+    white-space: pre-wrap;
+  }
+  .util-bar-track {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .util-bar-fill {
+    background: var(--accent);
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+
+  <h1>AgriFlow — API Test UI</h1>
+  <div class="sub">Plain debug page to confirm the backend works. Not the real frontend.</div>
+
+  <div class="bar">
+    <input id="baseUrl" value="http://localhost:8000" />
+    <button onclick="loadAll()">Reload data</button>
+    <span id="healthStatus" class="status">checking…</span>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <h2>Districts (<span id="districtCount">0</span>)</h2>
+      <table>
+        <thead>
+          <tr><th>District</th><th>Tier</th><th>Predicted supply</th><th>Residue</th><th>Window</th></tr>
+        </thead>
+        <tbody id="districtRows"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Plants (<span id="plantCount">0</span>)</h2>
+      <table>
+        <thead>
+          <tr><th>Plant</th><th>Capacity</th><th>Utilization</th></tr>
+        </thead>
+        <tbody id="plantRows"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="grid-column: 1 / -1;">
+      <h2>Matches</h2>
+      <table>
+        <thead>
+          <tr><th>District</th><th>Matched plant</th><th>Distance</th><th>Matched supply</th></tr>
+        </thead>
+        <tbody id="matchRows"></tbody>
+      </table>
+    </div>
+
+    <div class="card assistant-box">
+      <h2>Assistant test</h2>
+      <div class="bar">
+        <input id="question" placeholder="e.g. which plants are underused?" />
+        <button onclick="askAssistant()">Ask</button>
+      </div>
+      <div id="assistantAnswer" class="assistant-answer">No question asked yet.</div>
+    </div>
+
+  </div>
+
+<script>
+function baseUrl() {
+  return document.getElementById('baseUrl').value.replace(/\/$/, '');
+}
+
+async function checkHealth() {
+  const el = document.getElementById('healthStatus');
+  try {
+    const res = await fetch(baseUrl() + '/health');
+    if (!res.ok) throw new Error();
+    el.textContent = 'API online';
+    el.className = 'status ok';
+  } catch (e) {
+    el.textContent = 'API unreachable';
+    el.className = 'status err';
+  }
+}
+
+async function loadDistricts() {
+  const res = await fetch(baseUrl() + '/districts');
+  const data = await res.json();
+  document.getElementById('districtCount').textContent = data.length;
+  document.getElementById('districtRows').innerHTML = data.map(d => `
+    <tr>
+      <td>${d.district}</td>
+      <td><span class="tier ${d.supply_tier}">${d.supply_tier}</span></td>
+      <td>${Math.round(d.predicted_supply_2018).toLocaleString()}</td>
+      <td>${d.residue_type}</td>
+      <td>${d.harvest_window}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadPlants() {
+  const res = await fetch(baseUrl() + '/plants');
+  const data = await res.json();
+  document.getElementById('plantCount').textContent = data.length;
+  document.getElementById('plantRows').innerHTML = data.map(p => `
+    <tr>
+      <td>${p.plant_name}</td>
+      <td>${p.annual_capacity.toLocaleString()}</td>
+      <td>
+        ${p.utilization_pct}%
+        <div class="util-bar-track"><div class="util-bar-fill" style="width:${Math.min(p.utilization_pct,100)}%"></div></div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadMatches() {
+  const res = await fetch(baseUrl() + '/matches');
+  const data = await res.json();
+  document.getElementById('matchRows').innerHTML = data.map(m => `
+    <tr>
+      <td>${m.district}</td>
+      <td>${m.matched_plant_name}</td>
+      <td>${m.distance_km} km</td>
+      <td>${Math.round(m.matched_supply).toLocaleString()}</td>
+    </tr>
+  `).join('');
+}
+
+async function askAssistant() {
+  const q = document.getElementById('question').value || 'which plants are underused?';
+  const box = document.getElementById('assistantAnswer');
+  box.textContent = 'Thinking…';
+  try {
+    const res = await fetch(baseUrl() + '/assistant/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q })
+    });
+    const data = await res.json();
+    box.textContent = data.answer;
+  } catch (e) {
+    box.textContent = 'Request failed — is the API running and CORS enabled?';
+  }
+}
+
+async function loadAll() {
+  await checkHealth();
+  await loadDistricts();
+  await loadPlants();
+  await loadMatches();
+}
+
+loadAll();
+</script>
+</body>
+</html>

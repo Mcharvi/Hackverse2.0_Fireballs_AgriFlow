@@ -1,9 +1,97 @@
-.freebuff/
-__pycache__/
-*.pyc
-.DS_Store
+# =========================
+# Python / FastAPI
+# =========================
 
-# Working files — kept local, not tracked in the repo
-Hackverse2.0_AgriFlow.pptx
-agriflow-24hr-hackathon-plan-v2.md
-endpoints.jpeg
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+ENV/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+*.log
+
+
+# =========================
+# Environment / Secrets
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# API keys / credentials
+*.pem
+*.key
+
+
+# =========================
+# Node / React / Vite
+# =========================
+
+node_modules/
+dist/
+build/
+.vite/
+
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# =========================
+# IDE / Editors
+# =========================
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+
+# =========================
+# OS
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# =========================
+# AI Coding Tools
+# =========================
+
+.freebuff/
+
+
+# =========================
+# Local databases
+# =========================
+
+*.db
+*.sqlite
+*.sqlite3
+
+
+# =========================
+# Temporary files
+# =========================
+
+*.tmp
+*.temp
+
+
+# =========================
+# Python notebooks
+# =========================
+
+.ipynb_checkpoints/
