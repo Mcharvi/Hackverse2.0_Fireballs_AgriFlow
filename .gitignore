@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Working files — kept local, not tracked in the repo
+Hackverse2.0_AgriFlow.pptx
+agriflow-24hr-hackathon-plan-v2.md
+endpoints.jpeg
