@@ -108,14 +108,22 @@ export default function App() {
     layersRef.current.routes = routeLayer.addTo(map);
   }, [districts, plants, matches]);
 
+// Replace the existing `ask` function in App.jsx with this version.
+  // Only this one function changes — everything else in App.jsx stays the same.
   async function ask() {
     const q = question.trim();
     if (!q || busy) return;
     setBusy(true);
     setQuestion("");
+
+    // Build history from turns so far (oldest first), BEFORE adding this
+    // question to `chat` state — this is what lets follow-ups like
+    // "how far is that from Amreli?" resolve correctly.
+    const history = chat.map((m) => ({ role: m.role, content: m.text }));
+
     setChat((c) => [...c, { role: "user", text: q }]);
     try {
-      const { answer } = await api.ask(q);
+      const { answer } = await api.ask(q, history);
       setChat((c) => [...c, { role: "assistant", text: answer }]);
     } catch (e) {
       setChat((c) => [...c, { role: "assistant", text: `Error: ${e}` }]);

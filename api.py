@@ -194,14 +194,21 @@ def get_matches_route():
 # See llm_assistant.py: question -> Granite picks a function -> we run it
 # against the DB -> Granite phrases the answer in natural language.
 # ---------------------------------------------------------------------------
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+
 class AssistantQuery(BaseModel):
     question: str
+    history: list[ChatMessage] = []
 
 
 @app.post("/assistant/query")
 def assistant_query(payload: AssistantQuery):
     return answer_question(
         payload.question,
+        history=[m.model_dump() for m in payload.history],
         load_all_districts=load_all_districts,
         load_all_plants=load_all_plants,
         get_plant_utilization=get_plant_utilization,
