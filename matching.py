@@ -38,11 +38,6 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "agriflow.db"
 EARTH_RADIUS_KM = 6371.0
 
-# Demo transport-rate assumption (currency per unit-km). The dataset units are
-# dimensionless biomass units, so this is a labelled estimate, not a real rupee
-# cost. Tune freely; every number in /analysis traces back to this constant.
-TRANSPORT_RATE_PER_UNIT_KM = 0.05
-
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Great-circle distance between two lat/lon points, in km."""
@@ -76,58 +71,14 @@ def load_plants(conn: sqlite3.Connection) -> list[dict]:
     ]
 
 
-def load_terrain(conn: sqlite3.Connection) -> dict[tuple[str, str], dict]:
-    """Terrain cost lookups keyed by (district, plant_id). Empty if the
-    terrain table doesn't exist yet (matcher falls back to haversine)."""
-    try:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            "SELECT district, plant_id, elevation_gain_m, slope_pct, "
-            "terrain_multiplier, effective_km FROM terrain"
-        ).fetchall()
-    except sqlite3.OperationalError:
-        return {}
-    return {(r["district"], r["plant_id"]): dict(r) for r in rows}
-
-
-def _route_cost(district: dict, plant: dict, qty: float, effective_km: float) -> dict:
-    """Cost fields for one match row (labelled demo-rate estimate)."""
-    cost_index = qty * effective_km          # unit-km, assumption-free
-    est_cost = cost_index * TRANSPORT_RATE_PER_UNIT_KM
-    return {
-        "cost_index": round(cost_index, 1),
-        "estimated_cost": round(est_cost, 1),
-    }
-
-
 def compute_matches(
-    districts: list[dict],
-    plants: list[dict],
-    min_alloc: float = 2000.0,
-    terrain: dict[tuple[str, str], dict] | None = None,
+    districts: list[dict], plants: list[dict], min_alloc: float = 2000.0
 ) -> list[dict]:
     """Greedy supply–demand matching. Returns a list of match rows.
 
     `min_alloc` is the economic lot threshold: allocations below it are
     skipped so we don't dispatch pickups for fragments.
-
-    `terrain` is an optional {(district, plant_id): {...}} lookup from
-    load_terrain(); when present, plants are ranked by terrain-adjusted
-    effective_km instead of raw haversine, and each row carries
-    effective_distance_km / terrain_multiplier / cost fields.
     """
-    terrain = terrain or {}
-
-    def eff_km(district: dict, plant: dict) -> tuple[float, dict | None]:
-        key = (district["district"], plant["plant_id"])
-        t = terrain.get(key)
-        if t:
-            return float(t["effective_km"]), t
-        return haversine_km(
-            district["latitude"], district["longitude"],
-            plant["latitude"], plant["longitude"],
-        ), None
-
     remaining = {p["plant_id"]: float(p["annual_capacity"]) for p in plants}
     matches: list[dict] = []
 
@@ -138,10 +89,16 @@ def compute_matches(
         supply = float(district["predicted_supply_2018"])
         to_assign = supply
 
-        # Cheapest (terrain-adjusted) plants first; haversine tie-break by id.
+        # Nearest plants first (distance tie-break by plant id).
         candidates = sorted(
             plants,
-            key=lambda p: (eff_km(district, p)[0], p["plant_id"]),
+            key=lambda p: (
+                haversine_km(
+                    district["latitude"], district["longitude"],
+                    p["latitude"], p["longitude"],
+                ),
+                p["plant_id"],
+            ),
         )
         for plant in candidates:
             if to_assign <= 1e-6:
@@ -154,46 +111,39 @@ def compute_matches(
                 # Below the economic threshold — leave this capacity idle
                 # rather than dispatch a pickup for a fragment.
                 continue
-            raw_km = haversine_km(
-                district["latitude"], district["longitude"],
-                plant["latitude"], plant["longitude"],
+            matches.append(
+                {
+                    "district": district["district"],
+                    "plant_id": plant["plant_id"],
+                    "allocated_quantity": round(qty, 1),
+                    "distance_km": round(
+                        haversine_km(
+                            district["latitude"], district["longitude"],
+                            plant["latitude"], plant["longitude"],
+                        ),
+                        1,
+                    ),
+                    "pickup_order": None,
+                    "status": "matched",
+                }
             )
-            eff, t = eff_km(district, plant)
-            row = {
-                "district": district["district"],
-                "plant_id": plant["plant_id"],
-                "allocated_quantity": round(qty, 1),
-                "distance_km": round(raw_km, 1),
-                "effective_distance_km": round(eff, 1),
-                "terrain_multiplier": round(t["terrain_multiplier"], 4) if t else 1.0,
-                "elevation_gain_m": round(t["elevation_gain_m"], 1) if t else None,
-                "slope_pct": round(t["slope_pct"], 3) if t else None,
-                "pickup_order": None,
-                "status": "matched",
-                **_route_cost(district, plant, qty, eff),
-            }
-            matches.append(row)
             remaining[plant["plant_id"]] -= qty
             to_assign -= qty
         # to_assign > 0 means unabsorbed supply — intentionally not stored;
         # it shows up as the gap between total supply and matched quantity.
 
-    # Cheapest-first pickup order per plant (uses terrain-adjusted distance).
+    # Nearest-first pickup order per plant.
     by_plant: dict[str, list[dict]] = {}
     for m in matches:
         by_plant.setdefault(m["plant_id"], []).append(m)
     for rows in by_plant.values():
-        for order, m in enumerate(
-            sorted(rows, key=lambda r: r["effective_distance_km"]), start=1
-        ):
+        for order, m in enumerate(sorted(rows, key=lambda r: r["distance_km"]), start=1):
             m["pickup_order"] = order
 
     return matches
 
 
-def summarize(
-    matches: list[dict], districts: list[dict], plants: list[dict]
-) -> dict:
+def summarize(matches: list[dict], districts: list[dict], plants: list[dict]) -> dict:
     total_supply = sum(float(d["predicted_supply_2018"]) for d in districts)
     matched = sum(m["allocated_quantity"] for m in matches)
     utilization = {}
@@ -209,37 +159,6 @@ def summarize(
         "absorbed_pct": round(100 * matched / total_supply, 1),
         "utilization": utilization,
         "match_count": len(matches),
-    }
-
-
-def cost_summary(matches: list[dict]) -> dict:
-    """Aggregate transport cost across all matches (terrain-aware).
-
-    Every figure is derived from TRANSPORT_RATE_PER_UNIT_KM, so it's an
-    estimate with a labelled rate — not a claim of real spend.
-    """
-    if not matches:
-        return {
-            "total_cost_index": 0.0, "total_estimated_cost": 0.0,
-            "flat_estimated_cost": 0.0, "terrain_penalty_pct": 0.0,
-            "avg_terrain_multiplier": 1.0, "routes": 0,
-        }
-    total_cost_index = sum(m["cost_index"] for m in matches)
-    total_est = sum(m["estimated_cost"] for m in matches)
-    flat_est = sum(
-        m["allocated_quantity"] * m["distance_km"] * TRANSPORT_RATE_PER_UNIT_KM
-        for m in matches
-    )
-    avg_mult = sum(m["terrain_multiplier"] for m in matches) / len(matches)
-    return {
-        "total_cost_index": round(total_cost_index, 1),
-        "total_estimated_cost": round(total_est, 1),
-        "flat_estimated_cost": round(flat_est, 1),
-        "terrain_penalty_pct": round(100 * (total_est - flat_est) / flat_est, 2)
-        if flat_est else 0.0,
-        "avg_terrain_multiplier": round(avg_mult, 4),
-        "routes": len(matches),
-        "transport_rate_per_unit_km": TRANSPORT_RATE_PER_UNIT_KM,
     }
 
 
@@ -259,12 +178,8 @@ def main() -> None:
     try:
         districts = load_districts(conn)
         plants = load_plants(conn)
-        terrain = load_terrain(conn)
-        matches = compute_matches(
-            districts, plants, min_alloc=args.min_alloc, terrain=terrain
-        )
+        matches = compute_matches(districts, plants, min_alloc=args.min_alloc)
         summary = summarize(matches, districts, plants)
-        costs = cost_summary(matches)
 
         if not args.dry_run:
             conn.execute("DELETE FROM matches")
@@ -284,19 +199,12 @@ def main() -> None:
         print("\nutilization per plant:")
         for pid, pct in summary["utilization"].items():
             print(f"  {pid}: {pct:>5.1f}%")
-        print("\nterrain-aware cost summary (rate = "
-              f"{TRANSPORT_RATE_PER_UNIT_KM} per unit-km):")
-        print(f"  total est. cost : {costs['total_estimated_cost']:>10,.1f}")
-        print(f"  flat-only cost  : {costs['flat_estimated_cost']:>10,.1f}")
-        print(f"  terrain penalty : {costs['terrain_penalty_pct']:>6.2f}%")
-        print(f"  avg multiplier  : {costs['avg_terrain_multiplier']:.4f}")
         print("\nsample matches (top 6 by allocated quantity):")
         for m in sorted(matches, key=lambda r: -r["allocated_quantity"])[:6]:
             print(
                 f"  {m['district']:15s} -> {m['plant_id']}  "
                 f"{m['allocated_quantity']:>9,.1f} units  "
-                f"{m['distance_km']:>6.1f} km (eff {m['effective_distance_km']:>6.1f})  "
-                f"pickup #{m['pickup_order']}"
+                f"{m['distance_km']:>6.1f} km  pickup #{m['pickup_order']}"
             )
         print("\n" + ("DRY RUN — database not modified" if args.dry_run else
                       f"wrote {len(matches)} rows to the matches table"))

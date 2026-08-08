@@ -34,11 +34,9 @@ export default function App() {
         // contract (no /sustainability dependency).
         const totalSupply = d.reduce((s, x) => s + (x.predicted_supply_2018 || 0), 0);
         const matched = m.reduce((s, x) => s + (x.matched_supply || 0), 0);
-        const estCost = m.reduce((s, x) => s + (x.estimated_cost || 0), 0);
         setSummary({
           total_predicted_supply_units: totalSupply,
           matched_units: matched,
-          estimated_cost: estCost,
         });
       })
       .catch((e) => setError(String(e)));
@@ -102,8 +100,7 @@ export default function App() {
           opacity: 0.55,
         })
           .bindTooltip(
-            `${d.district} → ${m.matched_plant_id} · ${fmt(m.matched_supply)} units · ` +
-            `${m.distance_km} km (terrain ${m.effective_distance_km ?? m.distance_km})`
+            `${d.district} → ${m.matched_plant_id} · ${fmt(m.matched_supply)} units · ${m.distance_km} km`
           )
           .addTo(routeLayer);
       }
@@ -164,13 +161,6 @@ export default function App() {
               <b className="warn">{fmt(leftover)}</b>
               <small>would otherwise burn</small>
             </div>
-            {summary.estimated_cost > 0 && (
-              <div>
-                <span className="stat-label">Est. transport cost</span>
-                <b>{fmt(summary.estimated_cost)}</b>
-                <small>terrain-aware · ₹0.05/unit-km</small>
-              </div>
-            )}
           </div>
         )}
       </header>
