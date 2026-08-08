@@ -1,0 +1,9 @@
+# Render Blueprint — one-click deployment for the AgriFlow API.
+# In the Render dashboard: New + -> Blueprint -> connect this repo.
+services:
+  - type: web
+    name: agriflow-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
