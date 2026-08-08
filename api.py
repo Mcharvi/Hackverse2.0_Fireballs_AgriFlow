@@ -19,8 +19,30 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from matching import compute_matches  # reuse Person B's real matching logic
-from llm_assistant import answer_question  # Granite function-calling layer
+from matching import (
+    compute_matches,
+    cost_summary,
+    load_terrain,
+    TRANSPORT_RATE_PER_UNIT_KM,
+)  # reuse Person B's real matching + terrain-aware cost logic
+
+# Assistant layer is optional at boot: it needs the `openai` package AND an
+# OPENAI_API_KEY env var. If either is missing, the API still starts and
+# /assistant/query answers with an honest "not configured" message instead of
+# crashing the whole service (important: Render must not go down over a key).
+try:
+    from llm_assistant import answer_question
+    _ASSISTANT_AVAILABLE = True
+except Exception as _import_err:  # noqa: BLE001 - any import-time failure degrades
+    _ASSISTANT_AVAILABLE = False
+    _ASSISTANT_IMPORT_ERROR = str(_import_err)
+
+    def answer_question(question: str, **_) -> dict:
+        return {
+            "answer": "The AI assistant isn't configured yet — add the `openai` "
+                      f"package and an OPENAI_API_KEY. ({_ASSISTANT_IMPORT_ERROR})",
+            "supporting_data": {"functions_called": [], "error": _ASSISTANT_IMPORT_ERROR},
+        }
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "agriflow.db"
@@ -84,7 +106,9 @@ def load_all_predictions() -> list[dict]:
 
 def get_matches(min_alloc: float = 2000.0) -> list[dict]:
     """Live matches, computed with the real economic-lot-threshold logic
-    from matching.py — not a separate implementation.
+    from matching.py — not a separate implementation. Terrain-aware: plants
+    are ranked by effective_km (haversine x terrain multiplier) when the
+    terrain table exists, so routes carry elevation + cost fields.
 
     matching.py returns {plant_id, allocated_quantity, ...}. The frontend
     (frontend/src/App.jsx) expects {matched_plant_id, matched_supply, ...}.
@@ -95,13 +119,23 @@ def get_matches(min_alloc: float = 2000.0) -> list[dict]:
     """
     districts = load_all_districts()
     plants = load_all_plants()
-    raw = compute_matches(districts, plants, min_alloc=min_alloc)
+    conn = get_conn()
+    try:
+        terrain = load_terrain(conn)
+    finally:
+        conn.close()
+    raw = compute_matches(districts, plants, min_alloc=min_alloc, terrain=terrain)
     return [
         {
             "district": m["district"],
             "matched_plant_id": m["plant_id"],
             "matched_supply": m["allocated_quantity"],
             "distance_km": m["distance_km"],
+            "effective_distance_km": m["effective_distance_km"],
+            "terrain_multiplier": m["terrain_multiplier"],
+            "elevation_gain_m": m["elevation_gain_m"],
+            "slope_pct": m["slope_pct"],
+            "estimated_cost": m["estimated_cost"],
             "pickup_order": m["pickup_order"],
             "status": m["status"],
         }
@@ -187,6 +221,52 @@ def get_plant(plant_id: str):
 @app.get("/matches")
 def get_matches_route():
     return get_matches()
+
+
+@app.get("/analysis")
+def get_analysis():
+    """Terrain-aware transport-cost analysis.
+
+    Combines the supply-demand summary with the elevation-adjusted cost
+    picture, so a judge (or the frontend) can see "how much does today's
+    plan cost to move, and what does terrain add?" in one call.
+    """
+    districts = load_all_districts()
+    plants = load_all_plants()
+    conn = get_conn()
+    try:
+        terrain = load_terrain(conn)
+    finally:
+        conn.close()
+    matches = compute_matches(districts, plants, terrain=terrain)
+    summary = {
+        "total_supply": round(sum(float(d["predicted_supply_2018"]) for d in districts), 1),
+        "matched": round(sum(m["allocated_quantity"] for m in matches), 1),
+    }
+    summary["leftover"] = round(summary["total_supply"] - summary["matched"], 1)
+    summary["absorbed_pct"] = round(
+        100 * summary["matched"] / summary["total_supply"], 1
+    )
+    return {
+        "summary": summary,
+        "costs": cost_summary(matches),
+        "transport_rate_per_unit_km": TRANSPORT_RATE_PER_UNIT_KM,
+        "matches": [
+            {
+                "district": m["district"],
+                "plant_id": m["plant_id"],
+                "allocated_quantity": m["allocated_quantity"],
+                "distance_km": m["distance_km"],
+                "effective_distance_km": m["effective_distance_km"],
+                "terrain_multiplier": m["terrain_multiplier"],
+                "elevation_gain_m": m["elevation_gain_m"],
+                "slope_pct": m["slope_pct"],
+                "estimated_cost": m["estimated_cost"],
+                "pickup_order": m["pickup_order"],
+            }
+            for m in matches
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------

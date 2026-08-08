@@ -9,6 +9,7 @@ Tables created:
   - plants      : one row per synthetic plant (from agriflow_plants.csv)
   - predictions : 2018 forecast per district (derived from the district rows)
   - matches     : empty, reserved for the supply-demand matching module
+  - terrain     : empty, populated by `python terrain.py` (terrain-aware cost)
 
 Usage:
     python seed_agriflow_db.py [--db path/to/agriflow.db]
@@ -54,6 +55,7 @@ DROP TABLE IF EXISTS districts;
 DROP TABLE IF EXISTS plants;
 DROP TABLE IF EXISTS predictions;
 DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS terrain;
 
 CREATE TABLE districts (
     district                    TEXT PRIMARY KEY,
@@ -107,6 +109,20 @@ CREATE TABLE matches (
     distance_km        REAL,
     pickup_order       INTEGER,
     status             TEXT DEFAULT 'proposed'
+);
+
+-- Terrain-aware transport cost per district x plant pair.
+-- Populated by `python terrain.py` (Open-Elevation / NASA SRTM, or --offline).
+CREATE TABLE terrain (
+    district           TEXT NOT NULL,
+    plant_id           TEXT NOT NULL,
+    haversine_km       REAL,
+    elevation_gain_m   REAL,
+    slope_pct          REAL,
+    terrain_multiplier REAL,
+    effective_km       REAL,
+    source             TEXT,
+    PRIMARY KEY (district, plant_id)
 );
 """
 
@@ -199,7 +215,7 @@ def main() -> None:
 
         counts = {
             table: conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            for table in ("districts", "plants", "predictions", "matches")
+            for table in ("districts", "plants", "predictions", "matches", "terrain")
         }
         top_districts = conn.execute(
             """SELECT district, predicted_supply_2018, confidence_label, supply_tier
