@@ -10,6 +10,164 @@
 * {
   box-sizing: border-box;
 }
+/* Add this block to styles.css — anywhere is fine, grouped near .error-banner
+   makes sense since both sit between .topbar and .layout. */
+
+.insights-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 20px;
+  background: #1e1730;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.insights-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.insights-strip ul {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insights-strip li {
+  color: var(--text);
+  position: relative;
+  padding-left: 14px;
+}
+/* Add this block to styles.css, alongside the .insights-strip rules. */
+
+.sim-toggle {
+  background: #2a2a2a;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sim-toggle:hover {
+  border-color: var(--accent);
+}
+
+.sim-toggle.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.sim-banner {
+  background: #241a3d;
+  color: #c4b5fd;
+  padding: 8px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sim-card .sim-coords {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 16px;
+}
+
+.sim-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.sim-label input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.sim-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sim-actions button:first-child {
+  flex: 1;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.sim-actions button:first-child:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sim-error {
+  color: #fca5a5;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.sim-results {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.sim-results h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.sim-good {
+  color: #22c55e !important;
+}
+
+.sim-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* Emoji div-icon for the hypothetical plant marker (Leaflet divIcon). */
+.sim-plant-icon {
+  font-size: 22px;
+  text-align: center;
+  line-height: 28px;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.6));
+}
+
+.insights-strip li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
 
 body {
   margin: 0;

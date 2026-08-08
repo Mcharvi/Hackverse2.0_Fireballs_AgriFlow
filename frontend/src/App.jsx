@@ -1,3 +1,4 @@
+//this is app.jsx
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -24,6 +25,25 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
+  // Proactive insight bullets — fetched once on load, independent of the
+  // main dashboard data (see api.insights()). Kept as its own loading/error
+  // state so a slow or failed insights call never blocks or breaks the map.
+  const [insights, setInsights] = useState([]);
+  const [insightsLoading, setInsightsLoading] = useState(true);
+
+  // Plant siting simulator state. simMode = user is in "click the map to
+  // place a plant" mode. simMarker = the placed {lat, lng}, null until they
+  // click. simResult = last /simulate/plant response, cleared whenever the
+  // marker moves so stale numbers never linger on screen.
+  const [simMode, setSimMode] = useState(false);
+  const [simMarker, setSimMarker] = useState(null);
+  const [simCapacity, setSimCapacity] = useState(20000);
+  const [simName, setSimName] = useState("Simulated Plant");
+  const [simRunning, setSimRunning] = useState(false);
+  const [simResult, setSimResult] = useState(null);
+  const [simError, setSimError] = useState(null);
+  const simMarkerLayerRef = useRef(null);
+
   useEffect(() => {
     Promise.all([api.districts(), api.plants(), api.matches()])
       .then(([d, p, m]) => {
@@ -40,6 +60,17 @@ export default function App() {
         });
       })
       .catch((e) => setError(String(e)));
+  }, []);
+
+  // Separate effect (and separate try/catch) from the main data load above
+  // on purpose — insights are a nice-to-have, and if this call is slow or
+  // errors out, the map/panel/chat should still work fully.
+  useEffect(() => {
+    api
+      .insights()
+      .then((res) => setInsights(res.insights || []))
+      .catch(() => setInsights([])) // fail silent — insights strip just won't render
+      .finally(() => setInsightsLoading(false));
   }, []);
 
   // Draw the map once the data is loaded.
@@ -108,6 +139,105 @@ export default function App() {
     layersRef.current.routes = routeLayer.addTo(map);
   }, [districts, plants, matches]);
 
+  // Sim-mode map click handler — placed in its own effect (dependent on
+  // simMode) so the listener always sees the latest simMode without having
+  // to reach into a ref. Runs after the map-creation effect above, so
+  // mapRef.current is guaranteed to exist by the time this fires.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    function handleMapClick(e) {
+      if (!simMode) return;
+      setSimMarker({ lat: e.latlng.lat, lng: e.latlng.lng });
+      setSimResult(null);
+      setSimError(null);
+    }
+    map.on("click", handleMapClick);
+    return () => map.off("click", handleMapClick);
+  }, [simMode]);
+
+  // Draw/clear the hypothetical plant marker itself.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (simMarkerLayerRef.current) {
+      map.removeLayer(simMarkerLayerRef.current);
+      simMarkerLayerRef.current = null;
+    }
+    if (simMarker) {
+      simMarkerLayerRef.current = L.marker([simMarker.lat, simMarker.lng], {
+        icon: L.divIcon({
+          className: "sim-plant-icon",
+          html: "🏭",
+          iconSize: [28, 28],
+        }),
+      }).addTo(map);
+    }
+  }, [simMarker]);
+
+  // Draw dashed routes for districts the simulation matched to the
+  // hypothetical plant. Separate layer from the real routes above so
+  // toggling/clearing the simulation never touches the real route lines.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (layersRef.current.simRoutes) {
+      map.removeLayer(layersRef.current.simRoutes);
+      layersRef.current.simRoutes = null;
+    }
+    if (simResult && simMarker) {
+      const routeLayer = L.layerGroup();
+      simResult.matches
+        .filter((m) => m.matched_plant_id === "SIM")
+        .forEach((m) => {
+          const d = districts.find((x) => x.district === m.district);
+          if (d) {
+            L.polyline(
+              [[d.latitude, d.longitude], [simMarker.lat, simMarker.lng]],
+              { color: "#22c55e", weight: 3, opacity: 0.85, dashArray: "6 6" }
+            )
+              .bindTooltip(
+                `${d.district} → simulated plant · ${fmt(m.matched_supply)} units · ${m.distance_km} km`
+              )
+              .addTo(routeLayer);
+          }
+        });
+      layersRef.current.simRoutes = routeLayer.addTo(map);
+    }
+  }, [simResult, simMarker, districts]);
+
+  function toggleSimMode() {
+    setSimMode((wasOn) => {
+      const next = !wasOn;
+      if (!next) {
+        // Turning the simulator off — clear everything so it doesn't
+        // linger on the map or panel.
+        setSimMarker(null);
+        setSimResult(null);
+        setSimError(null);
+      }
+      return next;
+    });
+  }
+
+  async function runSimulation() {
+    if (!simMarker || simRunning) return;
+    setSimRunning(true);
+    setSimError(null);
+    try {
+      const result = await api.simulatePlant({
+        latitude: simMarker.lat,
+        longitude: simMarker.lng,
+        annual_capacity: simCapacity,
+        plant_name: simName,
+      });
+      setSimResult(result);
+    } catch (e) {
+      setSimError(String(e));
+    }
+    setSimRunning(false);
+  }
+
 // Replace the existing `ask` function in App.jsx with this version.
   // Only this one function changes — everything else in App.jsx stays the same.
   async function ask() {
@@ -163,10 +293,36 @@ export default function App() {
             </div>
           </div>
         )}
+        <button
+          className={`sim-toggle ${simMode ? "active" : ""}`}
+          onClick={toggleSimMode}
+        >
+          {simMode ? "✕ Cancel simulation" : "📍 Simulate new plant"}
+        </button>
       </header>
 
       {error && (
         <div className="error-banner">⚠ Could not reach the API: {error}</div>
+      )}
+
+      {simMode && !simMarker && (
+        <div className="sim-banner">
+          📍 Click anywhere on the map to place a hypothetical plant.
+        </div>
+      )}
+
+      {/* Proactive insights strip — only renders once bullets arrive, and
+          disappears entirely (not even a placeholder) if the call fails,
+          so a slow/broken insights endpoint never leaves an empty box. */}
+      {!insightsLoading && insights.length > 0 && (
+        <div className="insights-strip">
+          <span className="insights-label">AI insights</span>
+          <ul>
+            {insights.map((text, i) => (
+              <li key={i}>{text}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="layout">
@@ -175,7 +331,24 @@ export default function App() {
         </div>
 
         <aside className="panel">
-          {selected ? (
+          {simMarker ? (
+            <SimulatorCard
+              marker={simMarker}
+              capacity={simCapacity}
+              setCapacity={setSimCapacity}
+              name={simName}
+              setName={setSimName}
+              onRun={runSimulation}
+              onClear={() => {
+                setSimMarker(null);
+                setSimResult(null);
+                setSimError(null);
+              }}
+              running={simRunning}
+              result={simResult}
+              error={simError}
+            />
+          ) : selected ? (
             selected.kind === "district" ? (
               <DistrictCard d={selected.data} onClose={() => setSelected(null)} />
             ) : (
@@ -256,6 +429,75 @@ function DistrictCard({ d, onClose }) {
       <button className="close" onClick={onClose}>
         Close
       </button>
+    </div>
+  );
+}
+
+function SimulatorCard({
+  marker,
+  capacity,
+  setCapacity,
+  name,
+  setName,
+  onRun,
+  onClear,
+  running,
+  result,
+  error,
+}) {
+  return (
+    <div className="card sim-card">
+      <h3>Simulate new plant</h3>
+      <span className="tier tier-plant">Hypothetical</span>
+      <p className="sim-coords">
+        📍 {marker.lat.toFixed(3)}, {marker.lng.toFixed(3)}
+      </p>
+
+      <label className="sim-label">
+        Plant name
+        <input value={name} onChange={(e) => setName(e.target.value)} />
+      </label>
+      <label className="sim-label">
+        Annual capacity (units/yr)
+        <input
+          type="number"
+          min={1000}
+          step={1000}
+          value={capacity}
+          onChange={(e) => setCapacity(Number(e.target.value) || 0)}
+        />
+      </label>
+
+      <div className="sim-actions">
+        <button onClick={onRun} disabled={running}>
+          {running ? "Running…" : "Run simulation"}
+        </button>
+        <button className="close" onClick={onClear}>
+          Clear
+        </button>
+      </div>
+
+      {error && <p className="sim-error">⚠ {error}</p>}
+
+      {result && (
+        <div className="sim-results">
+          <h4>Impact</h4>
+          <dl>
+            <dt>Leftover before</dt>
+            <dd>{fmt(result.baseline.leftover)} units</dd>
+            <dt>Leftover after</dt>
+            <dd>{fmt(result.simulated.leftover)} units</dd>
+            <dt>Leftover reduced by</dt>
+            <dd className="sim-good">{fmt(result.leftover_reduction)} units</dd>
+            <dt>New plant utilization</dt>
+            <dd>{result.simulated_plant_utilization_pct}%</dd>
+          </dl>
+          <p className="sim-note">
+            Dashed green lines on the map show which districts this plant
+            would absorb.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

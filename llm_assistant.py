@@ -14,6 +14,14 @@ Three things layered on top of the basic version:
      (e.g. "top 3 districts" -> then "nearest plant" for each) before
      producing a final answer, instead of being limited to one call.
 
+NEW: generate_insights() — proactive, unprompted insight bullets for the
+dashboard on load. Deliberately does NOT reuse the tool-calling loop above:
+that loop lets the model decide what to look up, which is right for open-
+ended Q&A but wrong here, where we want a fixed, cheap, predictable set of
+real numbers handed to the model in one shot, with no risk of it wandering
+into extra tool calls (extra cost, extra latency) or narrating unrelated
+things. Same grounding rule applies: only phrase what's in the payload.
+
 Requires:
     OPENAI_API_KEY   (set in .env locally, and in Render's environment settings)
 """
@@ -291,3 +299,113 @@ def answer_question(
         "answer": final.choices[0].message.content.strip(),
         "supporting_data": {"functions_called": functions_called, "note": "hit max tool iterations"},
     }
+
+
+# ---------------------------------------------------------------------------
+# Proactive insights — dashboard-load bullets, not user-triggered Q&A.
+# ---------------------------------------------------------------------------
+INSIGHTS_SYSTEM_PROMPT = (
+    "You write short, punchy insight bullets for a biomass supply-chain "
+    "dashboard. You will be given a JSON payload of real, already-computed "
+    "numbers — top-supply districts, plant utilization, unmatched supply, "
+    "and totals. Pick the 2 or 3 most interesting, non-obvious facts and "
+    "phrase each as a single plain-English sentence, under 20 words. "
+    "Only state numbers and names that appear in the payload — never "
+    "invent, round dramatically, or infer anything not present. Quantities "
+    "are dimensionless dataset biomass units, not tonnes; do not call them "
+    "tonnes or kg. Do not use the word 'confidence' unless a confidence "
+    "field is in the payload. Respond with ONLY a JSON object of the shape "
+    '{"insights": ["...", "...", "..."]} — no other text, no markdown.'
+)
+
+
+def generate_insights(
+    *,
+    load_all_districts,
+    load_all_plants,
+    get_plant_utilization,
+    get_matches,
+) -> dict:
+    """Generate 2-3 proactive insight bullets for dashboard load.
+
+    Deliberately skips the tool-calling loop in answer_question(): the data
+    needed here is fixed and small, so we gather it directly with the same
+    loaders api.py already uses (one source of truth, no drift from what's
+    on screen) and make a single LLM call to phrase it. No agent loop, no
+    risk of extra tool calls or wandering off-topic — cheap and predictable,
+    which matters since this runs unprompted on every page load.
+    """
+    districts = load_all_districts()
+    plants = get_plant_utilization()
+    matches = get_matches()
+
+    matched_names = {m["district"] for m in matches}
+    unmatched = [d["district"] for d in districts if d["district"] not in matched_names]
+
+    top_districts = sorted(districts, key=lambda d: -d["predicted_supply_2018"])[:5]
+    plants_by_util = sorted(plants, key=lambda p: p["utilization_pct"])
+
+    total_supply = sum(d["predicted_supply_2018"] for d in districts)
+    total_matched = sum(m["matched_supply"] for m in matches)
+    leftover = total_supply - total_matched
+
+    data_payload = {
+        "top_supply_districts": [
+            {"district": d["district"], "predicted_supply_2018": d["predicted_supply_2018"]}
+            for d in top_districts
+        ],
+        "unmatched_districts": unmatched,
+        "plant_utilization_ascending": [
+            {"plant_name": p["plant_name"], "utilization_pct": p["utilization_pct"]}
+            for p in plants_by_util
+        ],
+        "total_predicted_supply_units": round(total_supply, 1),
+        "total_matched_units": round(total_matched, 1),
+        "leftover_unmatched_units": round(leftover, 1),
+    }
+
+    try:
+        response = _client.chat.completions.create(
+            model=MODEL_ID,
+            messages=[
+                {"role": "system", "content": INSIGHTS_SYSTEM_PROMPT},
+                {"role": "user", "content": json.dumps(data_payload)},
+            ],
+            response_format={"type": "json_object"},
+        )
+        parsed = json.loads(response.choices[0].message.content)
+        insights = parsed.get("insights", [])
+        if not isinstance(insights, list) or not insights:
+            raise ValueError("model returned no insights")
+        # Keep it to at most 3, and make sure every entry is a plain string.
+        insights = [str(x) for x in insights][:3]
+    except Exception as e:
+        # Fail soft: the dashboard shouldn't break because a phrasing call
+        # failed. Fall back to a couple of insights built directly from the
+        # data with no LLM involved.
+        insights = _fallback_insights(data_payload)
+        return {"insights": insights, "source": "fallback", "error": str(e)}
+
+    return {"insights": insights, "source": "llm", "supporting_data": data_payload}
+
+
+def _fallback_insights(data_payload: dict) -> list[str]:
+    """Deterministic, LLM-free insights used if the OpenAI call fails —
+    dashboard load should never show nothing just because an API hiccuped."""
+    out = []
+    top = data_payload.get("top_supply_districts") or []
+    if top:
+        d = top[0]
+        out.append(
+            f"{d['district']} has the highest predicted supply at "
+            f"{d['predicted_supply_2018']:.0f} units."
+        )
+    leftover = data_payload.get("leftover_unmatched_units")
+    total = data_payload.get("total_predicted_supply_units")
+    if leftover and total:
+        pct = 100 * leftover / total if total else 0
+        out.append(f"{leftover:.0f} units ({pct:.0f}% of total supply) remain unmatched today.")
+    unmatched = data_payload.get("unmatched_districts") or []
+    if unmatched:
+        out.append(f"{len(unmatched)} district(s) have no matched plant yet.")
+    return out[:3] or ["No insights available right now."]
