@@ -1,7 +1,7 @@
 // AgriFlow API client.
 // Defaults to the live Render backend; override locally with VITE_API_URL.
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://hackverse2-0-fireballs-agriflow.onrender.com";
+  import.meta.env.VITE_API_URL || "//localhost:8000";
 
 async function get(path) {
   const res = await fetch(`${API_BASE}${path}`);
