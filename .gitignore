@@ -78,6 +78,8 @@ desktop.ini
 # =========================
 
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 
@@ -95,6 +97,14 @@ desktop.ini
 # =========================
 
 .ipynb_checkpoints/
-agriflow.db
-agriflow.db-shm
-agriflow.db-wal
+
+
+# =========================
+# Local project artifacts (deliberately not part of the repo)
+# =========================
+
+# Pitch deck, internal plan, and reference screenshots stay on disk but
+# out of version control.
+Hackverse2.0_AgriFlow.pptx
+agriflow-24hr-hackathon-plan-v2.md
+endpoints.jpeg

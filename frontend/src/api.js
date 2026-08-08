@@ -13,7 +13,6 @@ export const api = {
   districts: () => get("/districts"),
   plants: () => get("/plants"),
   matches: () => get("/matches"),
-  sustainability: () => get("/sustainability"),
   ask: async (question) => {
     const res = await fetch(`${API_BASE}/assistant/query`, {
       method: "POST",

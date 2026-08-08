@@ -7,9 +7,6 @@ Run:
     python seed_agriflow_db.py        # creates/refreshes agriflow.db
     pip install -r requirements.txt --break-system-packages
     uvicorn api:app --reload --port 8000
-
-Note: generate_api_contract.py does `from main import app` — either
-rename this file to main.py, or change that import to `from api import app`.
 """
 
 import json
