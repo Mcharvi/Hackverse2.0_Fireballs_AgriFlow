@@ -95,3 +95,6 @@ desktop.ini
 # =========================
 
 .ipynb_checkpoints/
+agriflow.db
+agriflow.db-shm
+agriflow.db-wal
