@@ -25,12 +25,19 @@ export default function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.all([api.districts(), api.plants(), api.matches(), api.sustainability()])
-      .then(([d, p, m, s]) => {
+    Promise.all([api.districts(), api.plants(), api.matches()])
+      .then(([d, p, m]) => {
         setDistricts(d);
         setPlants(p);
         setMatches(m);
-        setSummary(s);
+        // Stats computed client-side so the UI works against any backend
+        // contract (no /sustainability dependency).
+        const totalSupply = d.reduce((s, x) => s + (x.predicted_supply_2018 || 0), 0);
+        const matched = m.reduce((s, x) => s + (x.matched_supply || 0), 0);
+        setSummary({
+          total_predicted_supply_units: totalSupply,
+          matched_units: matched,
+        });
       })
       .catch((e) => setError(String(e)));
   }, []);
@@ -85,7 +92,7 @@ export default function App() {
     );
     matches.forEach((m) => {
       const d = districts.find((x) => x.district === m.district);
-      const ppos = plantPos[m.plant_id];
+      const ppos = plantPos[m.matched_plant_id];
       if (d && ppos) {
         L.polyline([[d.latitude, d.longitude], ppos], {
           color: "#3b82f6",
@@ -93,7 +100,7 @@ export default function App() {
           opacity: 0.55,
         })
           .bindTooltip(
-            `${d.district} → ${m.plant_id} · ${fmt(m.allocated_quantity)} units · ${m.distance_km} km`
+            `${d.district} → ${m.matched_plant_id} · ${fmt(m.matched_supply)} units · ${m.distance_km} km`
           )
           .addTo(routeLayer);
       }
