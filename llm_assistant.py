@@ -35,6 +35,24 @@ from openai import OpenAI
 MODEL_ID = "gpt-4o-mini"
 MAX_TOOL_ITERATIONS = 5  # hard cap so a confused loop can't run away on cost
 
+# UI language codes -> English name for the system prompt. The assistant
+# always answers in the language the user picked in the dropdown, regardless
+# of which language the question itself was asked in (a Gujarati speaker may
+# type or voice a question in English/Hindi and still get a Gujarati answer).
+LANGUAGE_NAMES = {"en": "English", "hi": "Hindi", "gu": "Gujarati"}
+
+
+def _language_instruction(language: str) -> str:
+    name = LANGUAGE_NAMES.get(language or "en", "English")
+    return (
+        f"Answer in {name}. The user may ask the question in any language "
+        f"(e.g. English, Hindi, Gujarati, or mixed Hinglish) — always reply "
+        f"in {name} unless the user explicitly asks for a different language. "
+        "Keep the same content rules as the main prompt: 1-3 plain sentences, "
+        "only numbers present in function results, and call the functions when "
+        "you need data."
+    )
+
 _client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 SYSTEM_PROMPT = (
@@ -298,17 +316,23 @@ def answer_question(
     get_plant_utilization,
     get_matches,
     get_economics=None,
+    get_impact=None,
+    language: str = "en",
     history: list[dict] | None = None,
 ) -> dict:
     """Main entry point.
 
     `history` is prior turns as [{"role": "user"/"assistant", "content": str}, ...]
     from oldest to newest, NOT including the current `question`.
+    `language` is the UI language code (en/hi/gu) — the answer is phrased in it.
 
     Data-loading functions are passed in from api.py so this module never
     talks to the DB directly — one source of truth.
     """
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": _language_instruction(language)},
+    ]
     messages.extend(history or [])
     messages.append({"role": "user", "content": question})
 
@@ -388,6 +412,7 @@ def generate_insights(
     get_plant_utilization,
     get_matches,
     get_economics=None,
+    get_impact=None,
 ) -> dict:
     """Generate 2-3 proactive insight bullets for dashboard load.
 
@@ -409,6 +434,7 @@ def generate_insights(
     # loader isn't wired in, the payload just omits it and the LLM/fallback
     # never mentions it.
     economics = get_economics() if get_economics is not None else None
+    impact = get_impact() if get_impact is not None else None
 
     top_districts = sorted(districts, key=lambda d: -_latest_supply(d))[:5]
     plants_by_util = sorted(plants, key=lambda p: p["utilization_pct"])
@@ -440,6 +466,13 @@ def generate_insights(
             "unprofitable_routes": economics["summary"]["unprofitable_routes"],
             "worst_route": (economics["worst_routes"] or [None])[0],
             "note": "Money values use demo rates (sale price, cost/km/unit, round-trip factor) — see /economics.",
+        }
+    if impact:
+        data_payload["impact"] = {
+            "leftover_tonnes": impact["leftover_tonnes"],
+            "co2_avoided_tonnes": impact["co2_avoided_tonnes"],
+            "equivalent_cars_off_road_for_a_year": impact["equivalent_cars_off_road_for_a_year"],
+            "note": "CO2 figures use impact.py assumptions (1 unit = 1 tonne; Ni et al. 2015 emission factor).",
         }
 
     try:

@@ -28,6 +28,8 @@ from matching import compute_matches, district_supply  # reuse Person B's real m
 from economics import compute_economics  # sale-profit vs transport-cost layer
 from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
 
+from impact import compute_impact  # CO2-avoided metric
+
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "agriflow.db"
 
@@ -175,6 +177,18 @@ def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
         })
     return result
 
+#co2 avoided metric
+def get_impact() -> dict:
+    districts = load_all_districts()
+    matches = get_matches()
+    return compute_impact(districts, matches)
+
+
+@app.get("/impact")
+def get_impact_route():
+    """CO2-avoided-by-matching metric — see impact.py for methodology
+    and assumptions. Same fail-soft-friendly shape as /economics."""
+    return get_impact()
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -289,18 +303,21 @@ class ChatMessage(BaseModel):
 class AssistantQuery(BaseModel):
     question: str
     history: list[ChatMessage] = []
+    language: str = "en"  # UI language the user picked — the assistant answers in it
 
 
 @app.post("/assistant/query")
 def assistant_query(payload: AssistantQuery):
     return answer_question(
         payload.question,
+        language=payload.language,
         history=[m.model_dump() for m in payload.history],
         load_all_districts=load_all_districts,
         load_all_plants=load_all_plants,
         get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
         get_economics=get_economics,
+        get_impact=get_impact
     )
 
 
@@ -320,6 +337,7 @@ def assistant_insights():
         get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
         get_economics=get_economics,
+        get_impact=get_impact
     )
 
 

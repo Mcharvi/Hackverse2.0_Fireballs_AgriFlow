@@ -16,6 +16,7 @@ export const api = {
   matches: () => get("/matches"),
   sustainability: () => get("/sustainability"),
   insights: () => get("/assistant/insights"),
+  impact: () => get("/impact"),
   simulatePlant: async ({ latitude, longitude, annual_capacity, plant_name }) => {
     const res = await fetch(`${API_BASE}/simulate/plant`, {
       method: "POST",
@@ -25,11 +26,11 @@ export const api = {
     if (!res.ok) throw new Error(`/simulate/plant -> HTTP ${res.status}`);
     return res.json();
   },
-  ask: async (question, history = []) => {
+  ask: async (question, history = [], language = "en") => {
     const res = await fetch(`${API_BASE}/assistant/query`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, history }),
+      body: JSON.stringify({ question, history, language }),
     });
     if (!res.ok) throw new Error(`/assistant/query -> HTTP ${res.status}`);
     return res.json();
