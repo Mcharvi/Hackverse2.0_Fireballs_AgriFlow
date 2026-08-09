@@ -25,7 +25,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from matching import compute_matches, district_supply  # reuse Person B's real matching logic
+from matching import COST_PER_TON_KM, compute_matches, district_supply  # reuse Person B's real matching logic
 from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
 
 from impact import compute_impact  # CO2-avoided metric
@@ -53,7 +53,7 @@ app.add_middleware(
 # Process-lifetime match cache — keyed on min_alloc.
 # compute_matches() is a pure function of districts + plants, which only
 # change when the DB is re-seeded (= a process restart on Render).  Cache
-# the result so the greedy pass runs once per process, not once per request.
+# the result so the matching pass runs once per process, not once per request.
 # ---------------------------------------------------------------------------
 _match_cache: dict[float, list[dict]] = {}
 
@@ -318,7 +318,7 @@ def assistant_insights():
 #
 # Reuses compute_matches() unmodified: a hypothetical plant is just another
 # dict with plant_id/latitude/longitude/annual_capacity appended to the real
-# plant list, then the same greedy matching runs twice — once with just the
+# plant list, then the same optimal matching runs twice — once with just the
 # real plants (baseline) and once with the hypothetical one added — so the
 # "impact" is a straight diff between two runs of logic that's already
 # tested and live elsewhere in the app. No new matching algorithm.
@@ -352,11 +352,14 @@ def _summarize(matches: list[dict], districts: list[dict], plants: list[dict]) -
             "utilization_pct": round(100 * allocated / p["annual_capacity"], 1)
             if p["annual_capacity"] else 0.0,
         }
+    ton_km = sum(m["allocated_quantity"] * m["distance_km"] for m in matches)
     return {
         "total_supply": round(total_supply, 1),
         "matched": round(matched, 1),
         "leftover": round(total_supply - matched, 1),
         "utilization": utilization,
+        "total_ton_km": round(ton_km, 1),
+        "haul_cost": round(ton_km * COST_PER_TON_KM, 1),
     }
 
 

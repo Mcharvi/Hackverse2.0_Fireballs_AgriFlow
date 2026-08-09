@@ -38,7 +38,7 @@ const en = {
   supplyMeta: (total, count) =>
     `${total} units predicted across ${count} districts — the 2026 forecast extends official district APY residue (DES Agristat 2010–2022), projected iteratively 2024 → 2026, clipped ±15%.`,
   matchedMeta: (count, total) =>
-    `${count} routes move ${total} units to plants — greedy nearest-viable-plant matching by capacity, then distance.`,
+    `${count} routes move ${total} units to plants — exact min-cost-flow matching, globally optimal haul distance.`,
   plantsMeta: (count) =>
     `${count} processing plants — utilization is load vs. annual capacity from the same matching run.`,
   leftoverMeta: (count, total) =>
@@ -91,7 +91,7 @@ const hi = {
   supplyMeta: (total, count) =>
     `${count} जिलों में ${total} यूनिट अनुमानित — 2026 का पूर्वानुमान आधिकारिक जिला APY अवशेष (DES Agristat 2010–2022) से, 2024 → 2026 तक क्रमिक प्रक्षेपण, ±15% सीमा तक।`,
   matchedMeta: (count, total) =>
-    `${count} रूट से ${total} यूनिट प्लांट तक पहुंचती है — क्षमता फिर दूरी के आधार पर ग्रीडी मिलान।`,
+    `${count} रूट से ${total} यूनिट प्लांट तक पहुंचती है — सटीक न्यूनतम-लागत मिलान, कुल ढुलाई दूरी के हिसाब से सर्वोत्तम।`,
   plantsMeta: (count) =>
     `${count} प्रोसेसिंग प्लांट — उपयोग दर लोड बनाम वार्षिक क्षमता है।`,
   leftoverMeta: (count, total) =>
@@ -143,7 +143,7 @@ const gu = {
   supplyMeta: (total, count) =>
     `${count} જિલ્લામાં ${total} યુનિટ અનુમાનિત — 2026નો પૂર્વાનુમાન સત્તાવાર જિલ્લા APY અવશેષ (DES Agristat 2010–2022) થી, 2024 → 2026 સુધી ક્રમિક પ્રક્ષેપણ, ±15% મર્યાદા સુધી.`,
   matchedMeta: (count, total) =>
-    `${count} રૂટ દ્વારા ${total} યુનિટ પ્લાન્ટ સુધી પહોંચે છે — ક્ષમતા પછી અંતર પ્રમાણે ગ્રીડી મિલાન.`,
+    `${count} રૂટ દ્વારા ${total} યુનિટ પ્લાન્ટ સુધી પહોંચે છે — ચોક્કસ ન્યૂનતમ-ખર્ચ મિલાન, કુલ પરિવહન અંતરની દૃષ્ટિએ શ્રેષ્ઠ.`,
   plantsMeta: (count) =>
     `${count} પ્રોસેસિંગ પ્લાન્ટ — ઉપયોગ દર એ લોડ વિરુદ્ધ વાર્ષિક ક્ષમતા છે.`,
   leftoverMeta: (count, total) =>
