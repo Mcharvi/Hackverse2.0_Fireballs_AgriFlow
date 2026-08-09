@@ -18,7 +18,7 @@ Model (per route):
 Why these shapes:
   - 1 dataset unit = 1 tonne (same assumption impact.py documents).
   - Transport is linear in distance and quantity at the haulage rate
-    (matching.py's COST_PER_TON_KM = 2.0 INR/t-km one-way by default).
+    (matching.py's COST_PER_TON_KM = 10.0 INR/t-km one-way by default).
     round_trip_factor (default 2.0) charges the empty return leg.
   - No plant-side processing cost: it is a per-unit constant that shifts
     every route's profit equally and never changes which route wins.

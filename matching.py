@@ -39,10 +39,11 @@ Design choices (documented so we can answer "why this algorithm?" honestly):
     frontend and the LLM assistant as "leftover that would otherwise burn".
 
 Cost model:
-  - COST_PER_TON_KM is a flat ₹/tonne-km road-freight ballpark (typical
-    Indian trucking ₹2–3/t-km; demo default 2.0). The allocation optimum
-    does not depend on the rate (constant scale factor), so the rate only
-    shows up in the reported ₹ haul cost.
+  - COST_PER_TON_KM is the flat ₹/tonne-km haulage rate used for the
+    reported haul cost (demo default 10.0 — deliberately conservative /
+    high for a demo so transport cost is not trivially small). The
+    allocation optimum does not depend on the rate (constant scale
+    factor), so the rate only shows up in the reported ₹ haul cost.
 
 Usage:
     python matching.py                     # exact min-cost-flow matches into agriflow.db
@@ -61,7 +62,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "agriflow.db"
 EARTH_RADIUS_KM = 6371.0
-COST_PER_TON_KM = 2.0  # ₹ per tonne-km, flat road-freight ballpark (demo default)
+COST_PER_TON_KM = 10.0  # ₹ per tonne-km haulage rate (demo default; scale factor — routing is rate-independent)
 _EPS = 1e-9
 
 
