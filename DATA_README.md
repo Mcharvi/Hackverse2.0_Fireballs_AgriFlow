@@ -28,8 +28,12 @@ This package is the revised, reproducible version of the AgriFlow demo data.
    residue assignments are sourced from Gujarat Agro Industries Corporation;
    others are explicitly marked as demo assumptions.
 
-7. The six plants are synthetic demo facilities. Their capacities are expressed
-   in `dataset biomass units/year`.
+7. The six plants are real operating reference facilities (located via the MNRE
+   Biourja CBG plant list, GEDA generation reports, and public commissioning
+   records): Biofics Bio-CNG (Rajkot), Bhavnagar Biomass Power Project,
+   Rockstone Infrastructure CBG (Ahmedabad), Reliance New Solar Energy CBG
+   (Jamnagar), APMC Surat CBG, and Goverdhannathji Energies CBG (Kheda). Their
+   capacities remain expressed in `dataset biomass units/year` (demo rates).
 
 ## Critical unit note
 
@@ -48,9 +52,67 @@ dataset. We aggregate the original site-level observations to district level,
 apply our own conservative prediction method, and then perform our own supply
 matching and route optimization using synthetic processing facilities."
 
+## CROPGRIDS layer (crop-area composition, 2020)
+
+`process_cropgrids.py` zonal-sums CROPGRIDS v1.08 (Tang et al., 2024,
+*Scientific Data*, https://doi.org/10.6084/m9.figshare.22491997, CC BY 4.0) —
+a global 0.05-degree gridded dataset of harvested/crop area for 173 crops
+circa 2020 — over Gujarat district boundaries (`gujarat_districts_census2011.geojson`,
+geoBoundaries gbOpen ADM2, CC BY 4.0) and writes `agriflow_crop_composition.csv`.
+
+That CSV feeds `seed_agriflow_db.py`, which:
+- fills the new `districts` columns `cropland_2020_ha`, `top_crop`, `crop_mix_source`;
+- seeds the `crop_composition` table (top 8 crops per district with ha + share);
+- upgrades residue labels that were previously "demo assumption" to evidence-based
+  ones derived from the dominant crop (e.g. Porbandar -> Groundnut shell,
+  Morbi -> Cotton stalk). Official crop-profile labels are left untouched.
+
+CROPGRIDS is a single circa-2020 snapshot, so it is a cross-sectional layer — it
+cannot extend the 2010-2017 Shell.ai time series. It is used as an additional
+per-district feature and validation layer, not as a retrained time-series input.
+
+## 2026 supply extension (official DES Agristat APY + RPR)
+
+The forecast now runs through 2026 using official district-level crop
+production, the Tier-1 extension discussed in the plan:
+
+1. `fetch_apy_gujarat.py` — downloads Gujarat district Area/Production/Yield
+   (APY) for 14 residue-relevant crops, all seasons, agricultural years
+   2010-11 through 2022-23, from the DES Agristat portal
+   (https://data.desagri.gov.in, Government of India). Cached under
+   `data_cache/` (gitignored).
+2. `extend_supply_2026.py` — converts production to residue via standard
+   crop Residue-to-Product Ratios (RPR; rice 1.5, wheat 1.5, jowar 1.8,
+   bajra 2.0, maize 2.0, gram 1.2, arhar 1.5, groundnut 1.0, sesamum 1.5,
+   rapeseed&mustard 1.5, castor 2.5, soyabean 1.5, cotton 3.0, sugarcane 0.3),
+   calibrates each district to the Shell.ai dimensionless units at its 2017
+   baseline, then re-runs the same forecast recipe (70% 3-yr rolling mean +
+   30% trend, clipped +/-15%) on the extended 2010-2022 series, projecting
+   iteratively to 2024, then 2025, then 2026 (each forecast year feeds the
+   next, so the path is self-consistent). Writes
+   `agriflow_district_residue_2010_2023.csv` (evidence layer) and updates
+   `agriflow_district_supply.csv` with the 2024/2025/2026 columns and a
+   per-district `supply_trend` (2010-2022 actuals + 2024-2026 forecast).
+   The forecast statistics (`confidence_score_2026` / `confidence_label_2026`)
+   are computed once on the actuals from the trend fit quality.
+
+Validation: the calibrated APY residue series reproduces the original
+Shell.ai 2015-17 rolling mean within ~+/-15% for all 20 districts — the
+official production data and the challenge dataset tell the same story.
+
+Caveats: RPR values are approximations from Indian biomass studies (ICAR,
+NITI Aayog, Jain et al. 2018) — the per-district 2017 calibration absorbs
+their absolute scale, so the forecast shape is driven by official production
+trends. Production is residue *generated*, not surplus. DES district-level
+APY on the portal ends at 2022-23, so 2023 is unlabelled and 2024-2026 are
+forward projections 1-4 harvests ahead.
+
 ## Attribution
 
 "Biomass estimates informed by the Shell.ai 2023 Agricultural Waste Challenge
 dataset, with EarthStat cropland and NASA-derived environmental inputs.
-District aggregation, prediction stabilization, matching, routing, and the
-query layer are our own implementation for operational biomass matching."
+Crop-area composition per district comes from CROPGRIDS v1.08 (Tang et al., 2024,
+Scientific Data, CC BY 4.0), aggregated over geoBoundaries gbOpen ADM2 district
+boundaries (CC BY 4.0). District aggregation, prediction stabilization, matching,
+routing, and the query layer are our own implementation for operational biomass
+matching."

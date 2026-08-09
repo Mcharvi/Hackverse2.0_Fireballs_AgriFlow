@@ -108,3 +108,8 @@ desktop.ini
 Hackverse2.0_AgriFlow.pptx
 agriflow-24hr-hackathon-plan-v2.md
 endpoints.jpeg
+
+
+# Downloaded reference datasets (CROPGRIDS NetCDF, raw zips, etc.)
+# stay local and out of version control.
+data_cache/

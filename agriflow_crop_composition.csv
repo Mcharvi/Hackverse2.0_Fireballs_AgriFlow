@@ -1,0 +1,181 @@
+district,crop,croparea_ha,share_pct
+Amreli,TOTAL,672904.2,100.0
+Amreli,cotton,277160.4,41.19
+Amreli,groundnut,223574.2,33.23
+Amreli,wheat,45234.6,6.72
+Amreli,millet,22422.4,3.33
+Amreli,maize,13952.2,2.07
+Amreli,sorghum,12579.0,1.87
+Amreli,castor,10931.5,1.62
+Amreli,bean,8314.7,1.24
+Rajkot,TOTAL,701208.9,100.0
+Rajkot,groundnut,224753.9,32.05
+Rajkot,cotton,194686.7,27.76
+Rajkot,wheat,186928.9,26.66
+Rajkot,millet,20092.7,2.87
+Rajkot,castor,11593.2,1.65
+Rajkot,sorghum,11520.4,1.64
+Rajkot,bean,9167.1,1.31
+Rajkot,sesame,7362.1,1.05
+Surendranagar,TOTAL,732305.8,100.0
+Surendranagar,cotton,441394.5,60.27
+Surendranagar,millet,53585.5,7.32
+Surendranagar,wheat,47878.7,6.54
+Surendranagar,groundnut,30867.6,4.22
+Surendranagar,castor,26862.2,3.67
+Surendranagar,sorghum,24182.1,3.3
+Surendranagar,maize,19692.5,2.69
+Surendranagar,sesame,15011.9,2.05
+Morbi,TOTAL,415137.0,100.0
+Morbi,cotton,196728.9,47.39
+Morbi,groundnut,88927.9,21.42
+Morbi,wheat,47313.2,11.4
+Morbi,millet,20700.7,4.99
+Morbi,sorghum,10059.6,2.42
+Morbi,castor,9834.0,2.37
+Morbi,sesame,5619.8,1.35
+Morbi,fornes,4235.3,1.02
+Bhavnagar,TOTAL,541177.9,100.0
+Bhavnagar,cotton,307921.7,56.9
+Bhavnagar,groundnut,89142.0,16.47
+Bhavnagar,millet,28207.7,5.21
+Bhavnagar,wheat,28055.9,5.18
+Bhavnagar,sorghum,13783.8,2.55
+Bhavnagar,maize,12606.9,2.33
+Bhavnagar,castor,11622.0,2.15
+Bhavnagar,bean,7473.3,1.38
+Ahmadabad,TOTAL,556293.8,100.0
+Ahmadabad,cotton,211961.3,38.1
+Ahmadabad,wheat,138703.7,24.93
+Ahmadabad,rice,41346.0,7.43
+Ahmadabad,millet,26234.1,4.72
+Ahmadabad,maize,23442.2,4.21
+Ahmadabad,chickpea,14475.6,2.6
+Ahmadabad,sorghum,13038.2,2.34
+Ahmadabad,castor,12765.6,2.29
+Jamnagar,TOTAL,557501.8,100.0
+Jamnagar,groundnut,218068.0,39.12
+Jamnagar,cotton,133458.3,23.94
+Jamnagar,wheat,76884.0,13.79
+Jamnagar,millet,28079.4,5.04
+Jamnagar,sorghum,13629.4,2.44
+Jamnagar,castor,11014.8,1.98
+Jamnagar,chickpea,6488.9,1.16
+Jamnagar,pulsenes,6450.4,1.16
+Surat,TOTAL,298704.7,100.0
+Surat,sugarcane,83039.1,27.8
+Surat,rice,45864.3,15.35
+Surat,pigeonpea,25791.7,8.63
+Surat,millet,20985.9,7.03
+Surat,soybean,17313.8,5.8
+Surat,cotton,11089.0,3.71
+Surat,bean,10823.5,3.62
+Surat,groundnut,10291.4,3.45
+Patan,TOTAL,402469.0,100.0
+Patan,cotton,85384.9,21.22
+Patan,rapeseed,72339.1,17.97
+Patan,wheat,45965.5,11.42
+Patan,bean,39070.8,9.71
+Patan,millet,31913.8,7.93
+Patan,maize,17595.4,4.37
+Patan,castor,15515.9,3.86
+Patan,sorghum,14494.4,3.6
+Kheda,TOTAL,283681.2,100.0
+Kheda,rice,57573.9,20.3
+Kheda,wheat,52561.9,18.53
+Kheda,cotton,35599.6,12.55
+Kheda,tobacco,27154.5,9.57
+Kheda,maize,17146.6,6.04
+Kheda,millet,16327.9,5.76
+Kheda,castor,8809.0,3.11
+Kheda,potato,8713.5,3.07
+Chhota Udaipur,TOTAL,289701.8,100.0
+Chhota Udaipur,cotton,72292.7,24.95
+Chhota Udaipur,pigeonpea,38831.2,13.4
+Chhota Udaipur,soybean,36688.1,12.66
+Chhota Udaipur,rice,20599.0,7.11
+Chhota Udaipur,maize,16563.1,5.72
+Chhota Udaipur,millet,15787.2,5.45
+Chhota Udaipur,wheat,12633.1,4.36
+Chhota Udaipur,groundnut,8518.6,2.94
+Gandhinagar,TOTAL,166578.7,100.0
+Gandhinagar,cotton,46070.7,27.66
+Gandhinagar,wheat,17952.3,10.78
+Gandhinagar,rapeseed,14035.4,8.43
+Gandhinagar,millet,11810.8,7.09
+Gandhinagar,bean,10932.7,6.56
+Gandhinagar,rice,9019.3,5.41
+Gandhinagar,potato,8304.1,4.99
+Gandhinagar,sorghum,5351.3,3.21
+Sabar Kantha,TOTAL,336306.7,100.0
+Sabar Kantha,wheat,93857.5,27.91
+Sabar Kantha,cotton,57124.9,16.99
+Sabar Kantha,groundnut,25654.5,7.63
+Sabar Kantha,maize,20090.6,5.97
+Sabar Kantha,millet,20044.6,5.96
+Sabar Kantha,rapeseed,13671.6,4.07
+Sabar Kantha,pigeonpea,12200.3,3.63
+Sabar Kantha,potato,11725.6,3.49
+Tapi,TOTAL,176599.9,100.0
+Tapi,sugarcane,35195.8,19.93
+Tapi,rice,22297.5,12.63
+Tapi,soybean,18686.9,10.58
+Tapi,millet,16988.4,9.62
+Tapi,pigeonpea,12655.6,7.17
+Tapi,sorghum,7576.7,4.29
+Tapi,maize,7342.2,4.16
+Tapi,wheat,6312.7,3.57
+Porbandar,TOTAL,183262.5,100.0
+Porbandar,groundnut,78889.5,43.05
+Porbandar,wheat,42278.8,23.07
+Porbandar,cotton,12201.4,6.66
+Porbandar,chickpea,11035.7,6.02
+Porbandar,millet,10161.1,5.54
+Porbandar,sorghum,4856.7,2.65
+Porbandar,castor,3164.0,1.73
+Porbandar,bean,2427.9,1.32
+Navsari,TOTAL,155452.4,100.0
+Navsari,rice,43831.2,28.2
+Navsari,sugarcane,29403.2,18.91
+Navsari,soybean,22452.8,14.44
+Navsari,millet,10866.7,6.99
+Navsari,pigeonpea,6095.2,3.92
+Navsari,maize,5476.9,3.52
+Navsari,sorghum,4661.6,3.0
+Navsari,castor,3316.7,2.13
+Valsad,TOTAL,157465.7,100.0
+Valsad,rice,44511.6,28.27
+Valsad,soybean,31990.6,20.32
+Valsad,millet,14215.3,9.03
+Valsad,sugarcane,10440.9,6.63
+Valsad,maize,7341.2,4.66
+Valsad,pigeonpea,6521.0,4.14
+Valsad,sorghum,6245.0,3.97
+Valsad,castor,3175.1,2.02
+Mahisagar,TOTAL,148746.9,100.0
+Mahisagar,cotton,19476.9,13.09
+Mahisagar,rice,16859.1,11.33
+Mahisagar,maize,15802.8,10.62
+Mahisagar,millet,14955.4,10.05
+Mahisagar,pigeonpea,12832.1,8.63
+Mahisagar,wheat,10184.7,6.85
+Mahisagar,chickpea,9405.7,6.32
+Mahisagar,sorghum,6593.4,4.43
+Dohad,TOTAL,308780.2,100.0
+Dohad,wheat,59981.3,19.43
+Dohad,chickpea,46914.9,15.19
+Dohad,soybean,42588.2,13.79
+Dohad,cotton,34377.3,11.13
+Dohad,maize,18599.0,6.02
+Dohad,rice,17951.6,5.81
+Dohad,millet,17681.9,5.73
+Dohad,pigeonpea,12584.5,4.08
+The Dangs,TOTAL,58328.5,100.0
+The Dangs,soybean,14364.7,24.63
+The Dangs,rice,11547.6,19.8
+The Dangs,millet,6355.1,10.9
+The Dangs,maize,5996.3,10.28
+The Dangs,groundnut,5017.2,8.6
+The Dangs,pigeonpea,4754.4,8.15
+The Dangs,sorghum,2738.8,4.7
+The Dangs,chickpea,2345.3,4.02

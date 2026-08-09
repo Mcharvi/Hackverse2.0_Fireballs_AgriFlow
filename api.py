@@ -24,7 +24,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from matching import compute_matches  # reuse Person B's real matching logic
+from matching import compute_matches, district_supply  # reuse Person B's real matching logic
 from economics import compute_economics  # sale-profit vs transport-cost layer
 from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
 
@@ -84,6 +84,26 @@ def load_all_predictions() -> list[dict]:
     try:
         rows = conn.execute("SELECT * FROM predictions").fetchall()
         return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def load_crop_composition() -> dict[str, list[dict]]:
+    """CROPGRIDS v1.08 crop-area mix per district, top crops first.
+
+    Returns {district: [{crop, croparea_ha, share_pct}, ...]} — the same data
+    process_cropgrids.py wrote, read back from the seeded DB.
+    """
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT district, crop, croparea_ha, share_pct FROM crop_composition "
+            "ORDER BY district, share_pct DESC"
+        ).fetchall()
+        out: dict[str, list[dict]] = {}
+        for r in rows:
+            out.setdefault(r["district"], []).append(dict(r))
+        return out
     finally:
         conn.close()
 
@@ -172,15 +192,30 @@ def health():
 
 @app.get("/districts")
 def get_districts():
-    return load_all_districts()
+    rows = load_all_districts()
+    mix = load_crop_composition()
+    for r in rows:
+        r["crop_mix"] = mix.get(r["district"], [])
+    return rows
 
 
 @app.get("/districts/{district_name}")
 def get_district(district_name: str):
+    mix = load_crop_composition()
     for d in load_all_districts():
         if d["district"] == district_name:
-            return d
+            return {**d, "crop_mix": mix.get(district_name, [])}
     raise HTTPException(status_code=404, detail=f"District '{district_name}' not found")
+
+
+@app.get("/crops")
+def get_crops():
+    """Full CROPGRIDS v1.08 crop-area composition table (district x crop)."""
+    return {
+        "source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+        "units": "ha",
+        "composition": load_crop_composition(),
+    }
 
 
 @app.get("/predictions")
@@ -313,7 +348,7 @@ def _summarize(matches: list[dict], districts: list[dict], plants: list[dict]) -
     """Same shape as matching.py's summarize(), but per-plant rows include
     plant_name too, since the frontend needs to label the hypothetical plant
     without a second lookup."""
-    total_supply = sum(float(d["predicted_supply_2018"]) for d in districts)
+    total_supply = sum(district_supply(d) for d in districts)
     matched = sum(m["allocated_quantity"] for m in matches)
     utilization = {}
     for p in plants:

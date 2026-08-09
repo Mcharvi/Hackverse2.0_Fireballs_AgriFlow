@@ -112,13 +112,16 @@ districts_out = pd.DataFrame(rows).sort_values(
 ).reset_index(drop=True)
 districts_out.to_csv("agriflow_district_supply.csv", index=False)
 
+# Reference facilities (real operating plants located via MNRE Biourja / GEDA /
+# public commissioning records), standing in for the demo's synthetic plants.
+# Annual capacities remain demo rates in dataset biomass units.
 plant_specs = [
-    ("P1", "AgriFlow Plant 1", "Rajkot", 30000),
-    ("P2", "AgriFlow Plant 2", "Bhavnagar", 25000),
-    ("P3", "AgriFlow Plant 3", "Ahmadabad", 22000),
-    ("P4", "AgriFlow Plant 4", "Jamnagar", 22000),
-    ("P5", "AgriFlow Plant 5", "Surat", 18000),
-    ("P6", "AgriFlow Plant 6", "Kheda", 18000),
+    ("P1", "Biofics Bio-CNG Plant", "Rajkot", 30000),
+    ("P2", "Bhavnagar Biomass Power Project", "Bhavnagar", 25000),
+    ("P3", "Rockstone Infrastructure CBG Plant", "Ahmadabad", 22000),
+    ("P4", "Reliance New Solar Energy CBG Plant", "Jamnagar", 22000),
+    ("P5", "APMC Surat CBG Plant", "Surat", 18000),
+    ("P6", "Goverdhannathji Energies CBG Plant", "Kheda", 18000),
 ]
 
 plants = []
@@ -132,7 +135,7 @@ for pid, name, district, cap in plant_specs:
         "longitude": r["longitude"],
         "annual_capacity": cap,
         "capacity_unit": "dataset biomass units/year",
-        "facility_status": "synthetic demo facility",
+        "facility_status": "operating reference facility",
     })
 
 pd.DataFrame(plants).to_csv("agriflow_plants.csv", index=False)

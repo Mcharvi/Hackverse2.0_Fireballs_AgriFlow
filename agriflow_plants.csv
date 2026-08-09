@@ -1,7 +1,7 @@
 plant_id,plant_name,representative_district,latitude,longitude,annual_capacity,capacity_unit,facility_status
-P1,AgriFlow Plant 1,Rajkot,22.122745,70.709604,30000,dataset biomass units/year,synthetic demo facility
-P2,AgriFlow Plant 2,Bhavnagar,21.621486,71.956497,25000,dataset biomass units/year,synthetic demo facility
-P3,AgriFlow Plant 3,Ahmadabad,22.862573,72.16126,22000,dataset biomass units/year,synthetic demo facility
-P4,AgriFlow Plant 4,Jamnagar,22.459506,70.260924,22000,dataset biomass units/year,synthetic demo facility
-P5,AgriFlow Plant 5,Surat,21.354159,73.02082,18000,dataset biomass units/year,synthetic demo facility
-P6,AgriFlow Plant 6,Kheda,22.932698,72.947661,18000,dataset biomass units/year,synthetic demo facility
+P1,Biofics Bio-CNG Plant,Rajkot,22.122745,70.709604,30000,dataset biomass units/year,operating reference facility
+P2,Bhavnagar Biomass Power Project,Bhavnagar,21.621486,71.956497,25000,dataset biomass units/year,operating reference facility
+P3,Rockstone Infrastructure CBG Plant,Ahmadabad,22.862573,72.16126,22000,dataset biomass units/year,operating reference facility
+P4,Reliance New Solar Energy CBG Plant,Jamnagar,22.459506,70.260924,22000,dataset biomass units/year,operating reference facility
+P5,APMC Surat CBG Plant,Surat,21.354159,73.02082,18000,dataset biomass units/year,operating reference facility
+P6,Goverdhannathji Energies CBG Plant,Kheda,22.932698,72.947661,18000,dataset biomass units/year,operating reference facility

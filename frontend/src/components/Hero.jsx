@@ -28,7 +28,7 @@ export default function Hero({ summary, leftover, onExplore, onSimulate }) {
       {summary && (
         <div className="hero-stats">
           <div className="hero-stat">
-            <span className="hero-stat-label">Predicted supply</span>
+            <span className="hero-stat-label">Predicted supply (2026)</span>
             <span className="hero-stat-value">
               {fmt(summary.total_predicted_supply_units)}
               <span className="hero-stat-unit">units</span>

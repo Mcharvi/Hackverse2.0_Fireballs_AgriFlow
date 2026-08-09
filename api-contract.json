@@ -2,15 +2,22 @@
   "_health": [
     {
       "status": "ok",
-      "service": "agriflow-api",
-      "districts": 20,
-      "plants": 6
+      "db_path": "C:\\Users\\sanvi\\OneDrive\\Desktop\\Hackverse2.0_Fireballs_AgriFlow\\agriflow.db"
     }
   ],
   "_assistant_query_example": [
     {
-      "question": "Which district has the highest biomass?",
-      "answer": "Stub response \u2014 the AI assistant isn't wired up yet. Soon it will answer questions like: Which district has the highest biomass next month?"
+      "answer": "The district with the highest biomass supply is Amreli, which has a predicted supply of 38,148.96 biomass units for 2024.",
+      "supporting_data": {
+        "functions_called": [
+          {
+            "function": "get_top_supply_districts",
+            "args": {
+              "n": 1
+            }
+          }
+        ]
+      }
     }
   ],
   "districts": [
@@ -33,7 +40,156 @@
       "residue_type_source": "official district crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
+      "cropland_2020_ha": 672904.2,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 38148.955,
+      "predicted_supply_2025": 37067.379,
+      "predicted_supply_2026": 42558.336,
+      "rolling_3yr_2022": 38200.332,
+      "trend_forecast_2026": 37074.482,
+      "trend_r2_2026": 0.008,
+      "confidence_score_2026": 46.8,
+      "confidence_label_2026": "Low",
+      "supply_2026_change_pct": 27.5,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:55949.3,2011:43931.6,2012:10766.0,2013:84565.7,2014:31937.7,2015:46160.1,2016:28385.6,2017:37242.9,2018:23825.3,2019:66651.6,2020:42221.6,2021:12728.1,2022:59651.3,2024:38148.954804621855,2025:37067.37911043598,2026:42558.33578458004",
+      "crop_mix": [
+        {
+          "district": "Amreli",
+          "crop": "cotton",
+          "croparea_ha": 277160.4,
+          "share_pct": 41.19
+        },
+        {
+          "district": "Amreli",
+          "crop": "groundnut",
+          "croparea_ha": 223574.2,
+          "share_pct": 33.23
+        },
+        {
+          "district": "Amreli",
+          "crop": "wheat",
+          "croparea_ha": 45234.6,
+          "share_pct": 6.72
+        },
+        {
+          "district": "Amreli",
+          "crop": "millet",
+          "croparea_ha": 22422.4,
+          "share_pct": 3.33
+        },
+        {
+          "district": "Amreli",
+          "crop": "maize",
+          "croparea_ha": 13952.2,
+          "share_pct": 2.07
+        },
+        {
+          "district": "Amreli",
+          "crop": "sorghum",
+          "croparea_ha": 12579.0,
+          "share_pct": 1.87
+        },
+        {
+          "district": "Amreli",
+          "crop": "castor",
+          "croparea_ha": 10931.5,
+          "share_pct": 1.62
+        },
+        {
+          "district": "Amreli",
+          "crop": "bean",
+          "croparea_ha": 8314.7,
+          "share_pct": 1.24
+        }
+      ],
       "id": "Amreli"
+    },
+    {
+      "district": "Morbi",
+      "latitude": 22.892876,
+      "longitude": 70.994324,
+      "baseline_supply_2017": 23320.198,
+      "rolling_3yr_supply": 19312.785,
+      "trend_forecast_2018": 19386.985,
+      "predicted_supply_2018": 19335.045,
+      "trend_r2": 0.096,
+      "confidence_score_heuristic": 51.8,
+      "confidence_label": "Low",
+      "cropland_2017": 4143.5,
+      "avg_precipitation_2017": 4.84,
+      "avg_elevation_2017": 56.091,
+      "site_count_2017": 77,
+      "residue_type": "Cotton stalk",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "cropland_2020_ha": 415137.0,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 32576.19,
+      "predicted_supply_2025": 36050.76,
+      "predicted_supply_2026": 41432.699,
+      "rolling_3yr_2022": 34057.569,
+      "trend_forecast_2026": 29146.62,
+      "trend_r2_2026": 0.0,
+      "confidence_score_2026": 41.9,
+      "confidence_label_2026": "Low",
+      "supply_2026_change_pct": 114.3,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:33679.7,2011:33679.7,2012:33679.7,2013:33679.7,2014:33679.7,2015:16729.2,2016:23350.1,2017:23320.2,2018:19462.0,2019:23719.7,2020:19172.5,2021:15317.1,2022:67683.1,2024:32576.18992953797,2025:36050.76037839933,2026:41432.69878543804",
+      "crop_mix": [
+        {
+          "district": "Morbi",
+          "crop": "cotton",
+          "croparea_ha": 196728.9,
+          "share_pct": 47.39
+        },
+        {
+          "district": "Morbi",
+          "crop": "groundnut",
+          "croparea_ha": 88927.9,
+          "share_pct": 21.42
+        },
+        {
+          "district": "Morbi",
+          "crop": "wheat",
+          "croparea_ha": 47313.2,
+          "share_pct": 11.4
+        },
+        {
+          "district": "Morbi",
+          "crop": "millet",
+          "croparea_ha": 20700.7,
+          "share_pct": 4.99
+        },
+        {
+          "district": "Morbi",
+          "crop": "sorghum",
+          "croparea_ha": 10059.6,
+          "share_pct": 2.42
+        },
+        {
+          "district": "Morbi",
+          "crop": "castor",
+          "croparea_ha": 9834.0,
+          "share_pct": 2.37
+        },
+        {
+          "district": "Morbi",
+          "crop": "sesame",
+          "croparea_ha": 5619.8,
+          "share_pct": 1.35
+        },
+        {
+          "district": "Morbi",
+          "crop": "fornes",
+          "croparea_ha": 4235.3,
+          "share_pct": 1.02
+        }
+      ],
+      "id": "Morbi"
     },
     {
       "district": "Rajkot",
@@ -54,7 +210,156 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
+      "cropland_2020_ha": 701208.9,
+      "top_crop": "groundnut",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 26785.937,
+      "predicted_supply_2025": 25402.574,
+      "predicted_supply_2026": 28090.158,
+      "rolling_3yr_2022": 29383.7,
+      "trend_forecast_2026": 17688.167,
+      "trend_r2_2026": 0.089,
+      "confidence_score_2026": 51.2,
+      "confidence_label_2026": "Low",
+      "supply_2026_change_pct": 29.0,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:58699.8,2011:58111.2,2012:13940.3,2013:59491.8,2014:26915.4,2015:9824.8,2016:4233.4,2017:44996.2,2018:17957.3,2019:44986.0,2020:33340.5,2021:13752.9,2022:41057.7,2024:26785.937463814706,2025:25402.573649404625,2026:28090.158449633665",
+      "crop_mix": [
+        {
+          "district": "Rajkot",
+          "crop": "groundnut",
+          "croparea_ha": 224753.9,
+          "share_pct": 32.05
+        },
+        {
+          "district": "Rajkot",
+          "crop": "cotton",
+          "croparea_ha": 194686.7,
+          "share_pct": 27.76
+        },
+        {
+          "district": "Rajkot",
+          "crop": "wheat",
+          "croparea_ha": 186928.9,
+          "share_pct": 26.66
+        },
+        {
+          "district": "Rajkot",
+          "crop": "millet",
+          "croparea_ha": 20092.7,
+          "share_pct": 2.87
+        },
+        {
+          "district": "Rajkot",
+          "crop": "castor",
+          "croparea_ha": 11593.2,
+          "share_pct": 1.65
+        },
+        {
+          "district": "Rajkot",
+          "crop": "sorghum",
+          "croparea_ha": 11520.4,
+          "share_pct": 1.64
+        },
+        {
+          "district": "Rajkot",
+          "crop": "bean",
+          "croparea_ha": 9167.1,
+          "share_pct": 1.31
+        },
+        {
+          "district": "Rajkot",
+          "crop": "sesame",
+          "croparea_ha": 7362.1,
+          "share_pct": 1.05
+        }
+      ],
       "id": "Rajkot"
+    },
+    {
+      "district": "Jamnagar",
+      "latitude": 22.459506,
+      "longitude": 70.260924,
+      "baseline_supply_2017": 25918.495,
+      "rolling_3yr_supply": 15548.442,
+      "trend_forecast_2018": 18176.552,
+      "predicted_supply_2018": 16336.875,
+      "trend_r2": 0.076,
+      "confidence_score_heuristic": 39.5,
+      "confidence_label": "Low",
+      "cropland_2017": 3691.5,
+      "avg_precipitation_2017": 5.821,
+      "avg_elevation_2017": 53.167,
+      "site_count_2017": 72,
+      "residue_type": "Groundnut shell / cotton stalk",
+      "residue_type_source": "official district crop profile",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "cropland_2020_ha": 557501.8,
+      "top_crop": "groundnut",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 15784.916,
+      "predicted_supply_2025": 15640.485,
+      "predicted_supply_2026": 17720.401,
+      "rolling_3yr_2022": 16872.502,
+      "trend_forecast_2026": 11909.149,
+      "trend_r2_2026": 0.058,
+      "confidence_score_2026": 49.4,
+      "confidence_label_2026": "Low",
+      "supply_2026_change_pct": 8.5,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:26117.3,2011:31925.5,2012:2932.2,2013:37968.9,2014:17538.7,2015:13568.6,2016:5301.7,2017:25918.5,2018:10436.8,2019:19467.5,2020:16622.9,2021:6805.1,2022:27189.5,2024:15784.915781142732,2025:15640.48496475002,2026:17720.400592672086",
+      "crop_mix": [
+        {
+          "district": "Jamnagar",
+          "crop": "groundnut",
+          "croparea_ha": 218068.0,
+          "share_pct": 39.12
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "cotton",
+          "croparea_ha": 133458.3,
+          "share_pct": 23.94
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "wheat",
+          "croparea_ha": 76884.0,
+          "share_pct": 13.79
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "millet",
+          "croparea_ha": 28079.4,
+          "share_pct": 5.04
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "sorghum",
+          "croparea_ha": 13629.4,
+          "share_pct": 2.44
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "castor",
+          "croparea_ha": 11014.8,
+          "share_pct": 1.98
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "chickpea",
+          "croparea_ha": 6488.9,
+          "share_pct": 1.16
+        },
+        {
+          "district": "Jamnagar",
+          "crop": "pulsenes",
+          "croparea_ha": 6450.4,
+          "share_pct": 1.16
+        }
+      ],
+      "id": "Jamnagar"
     },
     {
       "district": "Surendranagar",
@@ -75,28 +380,71 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
+      "cropland_2020_ha": 732305.8,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 15413.562,
+      "predicted_supply_2025": 14613.657,
+      "predicted_supply_2026": 16715.406,
+      "rolling_3yr_2022": 16518.438,
+      "trend_forecast_2026": 11093.095,
+      "trend_r2_2026": 0.2,
+      "confidence_score_2026": 54.6,
+      "confidence_label_2026": "Low",
+      "supply_2026_change_pct": -19.0,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:29082.4,2011:31893.0,2012:10287.3,2013:24862.2,2014:21002.6,2015:22944.2,2016:14399.7,2017:22698.6,2018:13272.3,2019:17470.1,2020:18818.0,2021:5265.6,2022:25471.8,2024:15413.561769277749,2025:14613.656566988806,2026:16715.4058355545",
+      "crop_mix": [
+        {
+          "district": "Surendranagar",
+          "crop": "cotton",
+          "croparea_ha": 441394.5,
+          "share_pct": 60.27
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "millet",
+          "croparea_ha": 53585.5,
+          "share_pct": 7.32
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "wheat",
+          "croparea_ha": 47878.7,
+          "share_pct": 6.54
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "groundnut",
+          "croparea_ha": 30867.6,
+          "share_pct": 4.22
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "castor",
+          "croparea_ha": 26862.2,
+          "share_pct": 3.67
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "sorghum",
+          "croparea_ha": 24182.1,
+          "share_pct": 3.3
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "maize",
+          "croparea_ha": 19692.5,
+          "share_pct": 2.69
+        },
+        {
+          "district": "Surendranagar",
+          "crop": "sesame",
+          "croparea_ha": 15011.9,
+          "share_pct": 2.05
+        }
+      ],
       "id": "Surendranagar"
-    },
-    {
-      "district": "Morbi",
-      "latitude": 22.892876,
-      "longitude": 70.994324,
-      "baseline_supply_2017": 23320.198,
-      "rolling_3yr_supply": 19312.785,
-      "trend_forecast_2018": 19386.985,
-      "predicted_supply_2018": 19335.045,
-      "trend_r2": 0.096,
-      "confidence_score_heuristic": 51.8,
-      "confidence_label": "Low",
-      "cropland_2017": 4143.5,
-      "avg_precipitation_2017": 4.84,
-      "avg_elevation_2017": 56.091,
-      "site_count_2017": 77,
-      "residue_type": "Mixed agricultural residue",
-      "residue_type_source": "demo assumption",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "High",
-      "id": "Morbi"
     },
     {
       "district": "Bhavnagar",
@@ -117,6 +465,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
+      "cropland_2020_ha": 541177.9,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 15534.259,
+      "predicted_supply_2025": 13927.346,
+      "predicted_supply_2026": 15685.798,
+      "rolling_3yr_2022": 16812.655,
+      "trend_forecast_2026": 10211.902,
+      "trend_r2_2026": 0.245,
+      "confidence_score_2026": 57.0,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -17.7,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:40547.7,2011:30431.3,2012:13764.4,2013:32493.7,2014:16571.5,2015:17189.2,2016:17629.1,2017:24931.4,2018:14634.4,2019:26187.2,2020:22185.7,2021:5593.2,2022:22659.1,2024:15534.259435663207,2025:13927.345532002066,2026:15685.797876676756",
+      "crop_mix": [
+        {
+          "district": "Bhavnagar",
+          "crop": "cotton",
+          "croparea_ha": 307921.7,
+          "share_pct": 56.9
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "groundnut",
+          "croparea_ha": 89142.0,
+          "share_pct": 16.47
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "millet",
+          "croparea_ha": 28207.7,
+          "share_pct": 5.21
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "wheat",
+          "croparea_ha": 28055.9,
+          "share_pct": 5.18
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "sorghum",
+          "croparea_ha": 13783.8,
+          "share_pct": 2.55
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "maize",
+          "croparea_ha": 12606.9,
+          "share_pct": 2.33
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "castor",
+          "croparea_ha": 11622.0,
+          "share_pct": 2.15
+        },
+        {
+          "district": "Bhavnagar",
+          "crop": "bean",
+          "croparea_ha": 7473.3,
+          "share_pct": 1.38
+        }
+      ],
       "id": "Bhavnagar"
     },
     {
@@ -138,28 +550,71 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
+      "cropland_2020_ha": 556293.8,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 14073.618,
+      "predicted_supply_2025": 13506.887,
+      "predicted_supply_2026": 13778.057,
+      "rolling_3yr_2022": 15092.716,
+      "trend_forecast_2026": 10332.034,
+      "trend_r2_2026": 0.541,
+      "confidence_score_2026": 76.0,
+      "confidence_label_2026": "High",
+      "supply_2026_change_pct": -19.2,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:26097.0,2011:21935.3,2012:17168.5,2013:18167.9,2014:16652.9,2015:16302.7,2016:16307.7,2017:17041.9,2018:12294.2,2019:15709.9,2020:16637.1,2021:12205.7,2022:16435.4,2024:14073.618148083218,2025:13506.886526547285,2026:13778.05669718471",
+      "crop_mix": [
+        {
+          "district": "Ahmadabad",
+          "crop": "cotton",
+          "croparea_ha": 211961.3,
+          "share_pct": 38.1
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "wheat",
+          "croparea_ha": 138703.7,
+          "share_pct": 24.93
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "rice",
+          "croparea_ha": 41346.0,
+          "share_pct": 7.43
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "millet",
+          "croparea_ha": 26234.1,
+          "share_pct": 4.72
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "maize",
+          "croparea_ha": 23442.2,
+          "share_pct": 4.21
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "chickpea",
+          "croparea_ha": 14475.6,
+          "share_pct": 2.6
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "sorghum",
+          "croparea_ha": 13038.2,
+          "share_pct": 2.34
+        },
+        {
+          "district": "Ahmadabad",
+          "crop": "castor",
+          "croparea_ha": 12765.6,
+          "share_pct": 2.29
+        }
+      ],
       "id": "Ahmadabad"
-    },
-    {
-      "district": "Jamnagar",
-      "latitude": 22.459506,
-      "longitude": 70.260924,
-      "baseline_supply_2017": 25918.495,
-      "rolling_3yr_supply": 15548.442,
-      "trend_forecast_2018": 18176.552,
-      "predicted_supply_2018": 16336.875,
-      "trend_r2": 0.076,
-      "confidence_score_heuristic": 39.5,
-      "confidence_label": "Low",
-      "cropland_2017": 3691.5,
-      "avg_precipitation_2017": 5.821,
-      "avg_elevation_2017": 53.167,
-      "site_count_2017": 72,
-      "residue_type": "Groundnut shell / cotton stalk",
-      "residue_type_source": "official district crop profile",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "High",
-      "id": "Jamnagar"
     },
     {
       "district": "Surat",
@@ -180,6 +635,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 298704.7,
+      "top_crop": "sugarcane",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 10107.948,
+      "predicted_supply_2025": 10130.864,
+      "predicted_supply_2026": 10051.464,
+      "rolling_3yr_2022": 10254.379,
+      "trend_forecast_2026": 9865.889,
+      "trend_r2_2026": 0.006,
+      "confidence_score_2026": 64.5,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -4.4,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:11842.4,2011:11653.1,2012:2121.7,2013:9738.3,2014:11011.2,2015:8283.4,2016:9097.3,2017:9735.6,2018:9465.8,2019:8069.8,2020:10219.1,2021:10624.8,2022:9919.3,2024:10107.948438764666,2025:10130.864261669598,2026:10051.464303605428",
+      "crop_mix": [
+        {
+          "district": "Surat",
+          "crop": "sugarcane",
+          "croparea_ha": 83039.1,
+          "share_pct": 27.8
+        },
+        {
+          "district": "Surat",
+          "crop": "rice",
+          "croparea_ha": 45864.3,
+          "share_pct": 15.35
+        },
+        {
+          "district": "Surat",
+          "crop": "pigeonpea",
+          "croparea_ha": 25791.7,
+          "share_pct": 8.63
+        },
+        {
+          "district": "Surat",
+          "crop": "millet",
+          "croparea_ha": 20985.9,
+          "share_pct": 7.03
+        },
+        {
+          "district": "Surat",
+          "crop": "soybean",
+          "croparea_ha": 17313.8,
+          "share_pct": 5.8
+        },
+        {
+          "district": "Surat",
+          "crop": "cotton",
+          "croparea_ha": 11089.0,
+          "share_pct": 3.71
+        },
+        {
+          "district": "Surat",
+          "crop": "bean",
+          "croparea_ha": 10823.5,
+          "share_pct": 3.62
+        },
+        {
+          "district": "Surat",
+          "crop": "groundnut",
+          "croparea_ha": 10291.4,
+          "share_pct": 3.45
+        }
+      ],
       "id": "Surat"
     },
     {
@@ -201,6 +720,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 402469.0,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 8962.626,
+      "predicted_supply_2025": 8937.321,
+      "predicted_supply_2026": 9343.164,
+      "rolling_3yr_2022": 9396.967,
+      "trend_forecast_2026": 7576.84,
+      "trend_r2_2026": 0.163,
+      "confidence_score_2026": 61.6,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -10.0,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:9444.8,2011:13235.2,2012:9622.0,2013:10467.2,2014:10758.1,2015:9091.9,2016:8530.3,2017:8750.4,2018:6420.6,2019:8188.3,2020:9262.7,2021:7315.2,2022:11613.0,2024:8962.625657792845,2025:8937.321474901059,2026:9343.163739510794",
+      "crop_mix": [
+        {
+          "district": "Patan",
+          "crop": "cotton",
+          "croparea_ha": 85384.9,
+          "share_pct": 21.22
+        },
+        {
+          "district": "Patan",
+          "crop": "rapeseed",
+          "croparea_ha": 72339.1,
+          "share_pct": 17.97
+        },
+        {
+          "district": "Patan",
+          "crop": "wheat",
+          "croparea_ha": 45965.5,
+          "share_pct": 11.42
+        },
+        {
+          "district": "Patan",
+          "crop": "bean",
+          "croparea_ha": 39070.8,
+          "share_pct": 9.71
+        },
+        {
+          "district": "Patan",
+          "crop": "millet",
+          "croparea_ha": 31913.8,
+          "share_pct": 7.93
+        },
+        {
+          "district": "Patan",
+          "crop": "maize",
+          "croparea_ha": 17595.4,
+          "share_pct": 4.37
+        },
+        {
+          "district": "Patan",
+          "crop": "castor",
+          "croparea_ha": 15515.9,
+          "share_pct": 3.86
+        },
+        {
+          "district": "Patan",
+          "crop": "sorghum",
+          "croparea_ha": 14494.4,
+          "share_pct": 3.6
+        }
+      ],
       "id": "Patan"
     },
     {
@@ -222,7 +805,156 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 283681.2,
+      "top_crop": "rice",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 7963.665,
+      "predicted_supply_2025": 7908.269,
+      "predicted_supply_2026": 8018.639,
+      "rolling_3yr_2022": 8120.053,
+      "trend_forecast_2026": 7420.321,
+      "trend_r2_2026": 0.138,
+      "confidence_score_2026": 69.0,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -2.3,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:9810.6,2011:9448.6,2012:8565.5,2013:9118.4,2014:7615.3,2015:6816.0,2016:7069.2,2017:7675.5,2018:9131.4,2019:8452.1,2020:8241.5,2021:7439.8,2022:8678.8,2024:7963.664614614358,2025:7908.269273161575,2026:8018.638903231902",
+      "crop_mix": [
+        {
+          "district": "Kheda",
+          "crop": "rice",
+          "croparea_ha": 57573.9,
+          "share_pct": 20.3
+        },
+        {
+          "district": "Kheda",
+          "crop": "wheat",
+          "croparea_ha": 52561.9,
+          "share_pct": 18.53
+        },
+        {
+          "district": "Kheda",
+          "crop": "cotton",
+          "croparea_ha": 35599.6,
+          "share_pct": 12.55
+        },
+        {
+          "district": "Kheda",
+          "crop": "tobacco",
+          "croparea_ha": 27154.5,
+          "share_pct": 9.57
+        },
+        {
+          "district": "Kheda",
+          "crop": "maize",
+          "croparea_ha": 17146.6,
+          "share_pct": 6.04
+        },
+        {
+          "district": "Kheda",
+          "crop": "millet",
+          "croparea_ha": 16327.9,
+          "share_pct": 5.76
+        },
+        {
+          "district": "Kheda",
+          "crop": "castor",
+          "croparea_ha": 8809.0,
+          "share_pct": 3.11
+        },
+        {
+          "district": "Kheda",
+          "crop": "potato",
+          "croparea_ha": 8713.5,
+          "share_pct": 3.07
+        }
+      ],
       "id": "Kheda"
+    },
+    {
+      "district": "Tapi",
+      "latitude": 21.296815,
+      "longitude": 73.726413,
+      "baseline_supply_2017": 4109.696,
+      "rolling_3yr_supply": 4507.959,
+      "trend_forecast_2018": 5038.179,
+      "predicted_supply_2018": 4667.025,
+      "trend_r2": 0.302,
+      "confidence_score_heuristic": 63.4,
+      "confidence_label": "Moderate",
+      "cropland_2017": 2740.0,
+      "avg_precipitation_2017": 11.262,
+      "avg_elevation_2017": 121.578,
+      "site_count_2017": 64,
+      "residue_type": "Mixed agricultural residue",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "cropland_2020_ha": 176599.9,
+      "top_crop": "sugarcane",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 5732.615,
+      "predicted_supply_2025": 5823.534,
+      "predicted_supply_2026": 6005.311,
+      "rolling_3yr_2022": 5483.964,
+      "trend_forecast_2026": 6849.74,
+      "trend_r2_2026": 0.781,
+      "confidence_score_2026": 90.8,
+      "confidence_label_2026": "High",
+      "supply_2026_change_pct": 28.7,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:2078.9,2011:3338.9,2012:2018.4,2013:4434.7,2014:4285.5,2015:3660.3,2016:3863.0,2017:4109.7,2018:4858.3,2019:5045.8,2020:5441.4,2021:5153.3,2022:5857.2,2024:5732.614911325454,2025:5823.533670202474,2026:6005.31115359239",
+      "crop_mix": [
+        {
+          "district": "Tapi",
+          "crop": "sugarcane",
+          "croparea_ha": 35195.8,
+          "share_pct": 19.93
+        },
+        {
+          "district": "Tapi",
+          "crop": "rice",
+          "croparea_ha": 22297.5,
+          "share_pct": 12.63
+        },
+        {
+          "district": "Tapi",
+          "crop": "soybean",
+          "croparea_ha": 18686.9,
+          "share_pct": 10.58
+        },
+        {
+          "district": "Tapi",
+          "crop": "millet",
+          "croparea_ha": 16988.4,
+          "share_pct": 9.62
+        },
+        {
+          "district": "Tapi",
+          "crop": "pigeonpea",
+          "croparea_ha": 12655.6,
+          "share_pct": 7.17
+        },
+        {
+          "district": "Tapi",
+          "crop": "sorghum",
+          "croparea_ha": 7576.7,
+          "share_pct": 4.29
+        },
+        {
+          "district": "Tapi",
+          "crop": "maize",
+          "croparea_ha": 7342.2,
+          "share_pct": 4.16
+        },
+        {
+          "district": "Tapi",
+          "crop": "wheat",
+          "croparea_ha": 6312.7,
+          "share_pct": 3.57
+        }
+      ],
+      "id": "Tapi"
     },
     {
       "district": "Chhota Udaipur",
@@ -243,6 +975,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 289701.8,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 5453.009,
+      "predicted_supply_2025": 4986.987,
+      "predicted_supply_2026": 5699.82,
+      "rolling_3yr_2022": 5485.324,
+      "trend_forecast_2026": 4779.932,
+      "trend_r2_2026": 0.338,
+      "confidence_score_2026": 61.2,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -30.2,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:8961.0,2011:8961.0,2012:8961.0,2013:8961.0,2014:8961.0,2015:7214.0,2016:8107.7,2017:7742.5,2018:8718.3,2019:7944.5,2020:7098.1,2021:1506.7,2022:7851.1,2024:5453.009137462475,2025:4986.987431643762,2026:5699.820041985575",
+      "crop_mix": [
+        {
+          "district": "Chhota Udaipur",
+          "crop": "cotton",
+          "croparea_ha": 72292.7,
+          "share_pct": 24.95
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "pigeonpea",
+          "croparea_ha": 38831.2,
+          "share_pct": 13.4
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "soybean",
+          "croparea_ha": 36688.1,
+          "share_pct": 12.66
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "rice",
+          "croparea_ha": 20599.0,
+          "share_pct": 7.11
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "maize",
+          "croparea_ha": 16563.1,
+          "share_pct": 5.72
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "millet",
+          "croparea_ha": 15787.2,
+          "share_pct": 5.45
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "wheat",
+          "croparea_ha": 12633.1,
+          "share_pct": 4.36
+        },
+        {
+          "district": "Chhota Udaipur",
+          "crop": "groundnut",
+          "croparea_ha": 8518.6,
+          "share_pct": 2.94
+        }
+      ],
       "id": "Chhota Udaipur"
     },
     {
@@ -261,10 +1057,159 @@
       "avg_elevation_2017": 79.894,
       "site_count_2017": 47,
       "residue_type": "Mixed agricultural residue",
-      "residue_type_source": "demo assumption",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 166578.7,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 5244.668,
+      "predicted_supply_2025": 5048.548,
+      "predicted_supply_2026": 5244.223,
+      "rolling_3yr_2022": 5455.743,
+      "trend_forecast_2026": 4235.602,
+      "trend_r2_2026": 0.691,
+      "confidence_score_2026": 81.9,
+      "confidence_label_2026": "High",
+      "supply_2026_change_pct": -32.1,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:7819.5,2011:8587.6,2012:7736.9,2013:7981.5,2014:7957.1,2015:6709.3,2016:6013.8,2017:6845.4,2018:6575.2,2019:6045.2,2020:5962.6,2021:4045.1,2022:6359.6,2024:5244.667919170302,2025:5048.548249102567,2026:5244.222630377606",
+      "crop_mix": [
+        {
+          "district": "Gandhinagar",
+          "crop": "cotton",
+          "croparea_ha": 46070.7,
+          "share_pct": 27.66
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "wheat",
+          "croparea_ha": 17952.3,
+          "share_pct": 10.78
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "rapeseed",
+          "croparea_ha": 14035.4,
+          "share_pct": 8.43
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "millet",
+          "croparea_ha": 11810.8,
+          "share_pct": 7.09
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "bean",
+          "croparea_ha": 10932.7,
+          "share_pct": 6.56
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "rice",
+          "croparea_ha": 9019.3,
+          "share_pct": 5.41
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "potato",
+          "croparea_ha": 8304.1,
+          "share_pct": 4.99
+        },
+        {
+          "district": "Gandhinagar",
+          "crop": "sorghum",
+          "croparea_ha": 5351.3,
+          "share_pct": 3.21
+        }
+      ],
       "id": "Gandhinagar"
+    },
+    {
+      "district": "Porbandar",
+      "latitude": 21.727127,
+      "longitude": 69.718608,
+      "baseline_supply_2017": 4519.609,
+      "rolling_3yr_supply": 3138.89,
+      "trend_forecast_2018": 4006.87,
+      "predicted_supply_2018": 3399.284,
+      "trend_r2": 0.091,
+      "confidence_score_heuristic": 45.5,
+      "confidence_label": "Low",
+      "cropland_2017": 2094.0,
+      "avg_precipitation_2017": 6.805,
+      "avg_elevation_2017": 36.872,
+      "site_count_2017": 47,
+      "residue_type": "Groundnut shell",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "cropland_2020_ha": 183262.5,
+      "top_crop": "groundnut",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 4479.644,
+      "predicted_supply_2025": 4633.406,
+      "predicted_supply_2026": 4721.233,
+      "rolling_3yr_2022": 4469.358,
+      "trend_forecast_2026": 4634.176,
+      "trend_r2_2026": 0.025,
+      "confidence_score_2026": 59.3,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": 38.9,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:3506.2,2011:5140.4,2012:730.7,2013:6500.6,2014:4791.6,2015:1285.6,2016:4645.3,2017:4519.6,2018:2596.5,2019:4635.2,2020:3894.4,2021:4367.3,2022:5146.4,2024:4479.64394988686,2025:4633.406437757358,2026:4721.233066105233",
+      "crop_mix": [
+        {
+          "district": "Porbandar",
+          "crop": "groundnut",
+          "croparea_ha": 78889.5,
+          "share_pct": 43.05
+        },
+        {
+          "district": "Porbandar",
+          "crop": "wheat",
+          "croparea_ha": 42278.8,
+          "share_pct": 23.07
+        },
+        {
+          "district": "Porbandar",
+          "crop": "cotton",
+          "croparea_ha": 12201.4,
+          "share_pct": 6.66
+        },
+        {
+          "district": "Porbandar",
+          "crop": "chickpea",
+          "croparea_ha": 11035.7,
+          "share_pct": 6.02
+        },
+        {
+          "district": "Porbandar",
+          "crop": "millet",
+          "croparea_ha": 10161.1,
+          "share_pct": 5.54
+        },
+        {
+          "district": "Porbandar",
+          "crop": "sorghum",
+          "croparea_ha": 4856.7,
+          "share_pct": 2.65
+        },
+        {
+          "district": "Porbandar",
+          "crop": "castor",
+          "croparea_ha": 3164.0,
+          "share_pct": 1.73
+        },
+        {
+          "district": "Porbandar",
+          "crop": "bean",
+          "croparea_ha": 2427.9,
+          "share_pct": 1.32
+        }
+      ],
+      "id": "Porbandar"
     },
     {
       "district": "Sabar Kantha",
@@ -285,49 +1230,71 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Medium",
+      "cropland_2020_ha": 336306.7,
+      "top_crop": "wheat",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 4287.352,
+      "predicted_supply_2025": 4019.021,
+      "predicted_supply_2026": 4077.548,
+      "rolling_3yr_2022": 4918.46,
+      "trend_forecast_2026": 1850.861,
+      "trend_r2_2026": 0.672,
+      "confidence_score_2026": 79.0,
+      "confidence_label_2026": "High",
+      "supply_2026_change_pct": -31.3,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:9659.7,2011:10774.7,2012:9850.7,2013:8607.2,2014:5800.1,2015:5623.3,2016:4380.9,2017:6900.2,2018:5410.7,2019:4952.3,2020:5443.9,2021:3659.0,2022:5652.4,2024:4287.352262854386,2025:4019.0210304569737,2026:4077.5477572227",
+      "crop_mix": [
+        {
+          "district": "Sabar Kantha",
+          "crop": "wheat",
+          "croparea_ha": 93857.5,
+          "share_pct": 27.91
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "cotton",
+          "croparea_ha": 57124.9,
+          "share_pct": 16.99
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "groundnut",
+          "croparea_ha": 25654.5,
+          "share_pct": 7.63
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "maize",
+          "croparea_ha": 20090.6,
+          "share_pct": 5.97
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "millet",
+          "croparea_ha": 20044.6,
+          "share_pct": 5.96
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "rapeseed",
+          "croparea_ha": 13671.6,
+          "share_pct": 4.07
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "pigeonpea",
+          "croparea_ha": 12200.3,
+          "share_pct": 3.63
+        },
+        {
+          "district": "Sabar Kantha",
+          "crop": "potato",
+          "croparea_ha": 11725.6,
+          "share_pct": 3.49
+        }
+      ],
       "id": "Sabar Kantha"
-    },
-    {
-      "district": "Tapi",
-      "latitude": 21.296815,
-      "longitude": 73.726413,
-      "baseline_supply_2017": 4109.696,
-      "rolling_3yr_supply": 4507.959,
-      "trend_forecast_2018": 5038.179,
-      "predicted_supply_2018": 4667.025,
-      "trend_r2": 0.302,
-      "confidence_score_heuristic": 63.4,
-      "confidence_label": "Moderate",
-      "cropland_2017": 2740.0,
-      "avg_precipitation_2017": 11.262,
-      "avg_elevation_2017": 121.578,
-      "site_count_2017": 64,
-      "residue_type": "Mixed agricultural residue",
-      "residue_type_source": "demo assumption",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "Low",
-      "id": "Tapi"
-    },
-    {
-      "district": "Porbandar",
-      "latitude": 21.727127,
-      "longitude": 69.718608,
-      "baseline_supply_2017": 4519.609,
-      "rolling_3yr_supply": 3138.89,
-      "trend_forecast_2018": 4006.87,
-      "predicted_supply_2018": 3399.284,
-      "trend_r2": 0.091,
-      "confidence_score_heuristic": 45.5,
-      "confidence_label": "Low",
-      "cropland_2017": 2094.0,
-      "avg_precipitation_2017": 6.805,
-      "avg_elevation_2017": 36.872,
-      "site_count_2017": 47,
-      "residue_type": "Mixed agricultural residue",
-      "residue_type_source": "demo assumption",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "Low",
-      "id": "Porbandar"
     },
     {
       "district": "Navsari",
@@ -348,6 +1315,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
+      "cropland_2020_ha": 155452.4,
+      "top_crop": "rice",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 2636.482,
+      "predicted_supply_2025": 2659.631,
+      "predicted_supply_2026": 2621.044,
+      "rolling_3yr_2022": 2744.69,
+      "trend_forecast_2026": 2287.529,
+      "trend_r2_2026": 0.078,
+      "confidence_score_2026": 66.7,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -12.4,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:4218.1,2011:3624.4,2012:1390.5,2013:2479.0,2014:3307.6,2015:2532.1,2016:2510.2,2017:2646.7,2018:2420.5,2019:2645.0,2020:2582.6,2021:2863.6,2022:2787.8,2024:2636.48183932972,2025:2659.6307099370238,2026:2621.0437364975583",
+      "crop_mix": [
+        {
+          "district": "Navsari",
+          "crop": "rice",
+          "croparea_ha": 43831.2,
+          "share_pct": 28.2
+        },
+        {
+          "district": "Navsari",
+          "crop": "sugarcane",
+          "croparea_ha": 29403.2,
+          "share_pct": 18.91
+        },
+        {
+          "district": "Navsari",
+          "crop": "soybean",
+          "croparea_ha": 22452.8,
+          "share_pct": 14.44
+        },
+        {
+          "district": "Navsari",
+          "crop": "millet",
+          "croparea_ha": 10866.7,
+          "share_pct": 6.99
+        },
+        {
+          "district": "Navsari",
+          "crop": "pigeonpea",
+          "croparea_ha": 6095.2,
+          "share_pct": 3.92
+        },
+        {
+          "district": "Navsari",
+          "crop": "maize",
+          "croparea_ha": 5476.9,
+          "share_pct": 3.52
+        },
+        {
+          "district": "Navsari",
+          "crop": "sorghum",
+          "croparea_ha": 4661.6,
+          "share_pct": 3.0
+        },
+        {
+          "district": "Navsari",
+          "crop": "castor",
+          "croparea_ha": 3316.7,
+          "share_pct": 2.13
+        }
+      ],
       "id": "Navsari"
     },
     {
@@ -369,6 +1400,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
+      "cropland_2020_ha": 157465.7,
+      "top_crop": "rice",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 2162.22,
+      "predicted_supply_2025": 2176.206,
+      "predicted_supply_2026": 2203.761,
+      "rolling_3yr_2022": 2125.272,
+      "trend_forecast_2026": 2301.095,
+      "trend_r2_2026": 0.125,
+      "confidence_score_2026": 71.6,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -1.2,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:2107.0,2011:2072.7,2012:1292.6,2013:1802.9,2014:2016.3,2015:1973.4,2016:2626.7,2017:2082.2,2018:2117.5,2019:2024.0,2020:2099.5,2021:2062.1,2022:2214.2,2024:2162.2196811142785,2025:2176.2059307244754,2026:2203.760558160465",
+      "crop_mix": [
+        {
+          "district": "Valsad",
+          "crop": "rice",
+          "croparea_ha": 44511.6,
+          "share_pct": 28.27
+        },
+        {
+          "district": "Valsad",
+          "crop": "soybean",
+          "croparea_ha": 31990.6,
+          "share_pct": 20.32
+        },
+        {
+          "district": "Valsad",
+          "crop": "millet",
+          "croparea_ha": 14215.3,
+          "share_pct": 9.03
+        },
+        {
+          "district": "Valsad",
+          "crop": "sugarcane",
+          "croparea_ha": 10440.9,
+          "share_pct": 6.63
+        },
+        {
+          "district": "Valsad",
+          "crop": "maize",
+          "croparea_ha": 7341.2,
+          "share_pct": 4.66
+        },
+        {
+          "district": "Valsad",
+          "crop": "pigeonpea",
+          "croparea_ha": 6521.0,
+          "share_pct": 4.14
+        },
+        {
+          "district": "Valsad",
+          "crop": "sorghum",
+          "croparea_ha": 6245.0,
+          "share_pct": 3.97
+        },
+        {
+          "district": "Valsad",
+          "crop": "castor",
+          "croparea_ha": 3175.1,
+          "share_pct": 2.02
+        }
+      ],
       "id": "Valsad"
     },
     {
@@ -386,10 +1481,74 @@
       "avg_precipitation_2017": 9.153,
       "avg_elevation_2017": 143.607,
       "site_count_2017": 28,
-      "residue_type": "Pulse residue",
-      "residue_type_source": "demo assumption",
+      "residue_type": "Mixed agricultural residue",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
+      "cropland_2020_ha": 148746.9,
+      "top_crop": "cotton",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 1951.867,
+      "predicted_supply_2025": 2055.008,
+      "predicted_supply_2026": 2111.207,
+      "rolling_3yr_2022": 1968.902,
+      "trend_forecast_2026": 1903.812,
+      "trend_r2_2026": 0.004,
+      "confidence_score_2026": 59.8,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": 4.9,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:2043.9,2011:2043.9,2012:2043.9,2013:2043.9,2014:2043.9,2015:1614.3,2016:2014.3,2017:1801.0,2018:1804.1,2019:1929.9,2020:1521.4,2021:1860.9,2022:2524.4,2024:1951.8669389450065,2025:2055.007974396904,2026:2111.206662902897",
+      "crop_mix": [
+        {
+          "district": "Mahisagar",
+          "crop": "cotton",
+          "croparea_ha": 19476.9,
+          "share_pct": 13.09
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "rice",
+          "croparea_ha": 16859.1,
+          "share_pct": 11.33
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "maize",
+          "croparea_ha": 15802.8,
+          "share_pct": 10.62
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "millet",
+          "croparea_ha": 14955.4,
+          "share_pct": 10.05
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "pigeonpea",
+          "croparea_ha": 12832.1,
+          "share_pct": 8.63
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "wheat",
+          "croparea_ha": 10184.7,
+          "share_pct": 6.85
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "chickpea",
+          "croparea_ha": 9405.7,
+          "share_pct": 6.32
+        },
+        {
+          "district": "Mahisagar",
+          "crop": "sorghum",
+          "croparea_ha": 6593.4,
+          "share_pct": 4.43
+        }
+      ],
       "id": "Mahisagar"
     },
     {
@@ -411,6 +1570,70 @@
       "residue_type_source": "official crop profile",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
+      "cropland_2020_ha": 308780.2,
+      "top_crop": "wheat",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 731.828,
+      "predicted_supply_2025": 757.1,
+      "predicted_supply_2026": 771.814,
+      "rolling_3yr_2022": 717.824,
+      "trend_forecast_2026": 808.271,
+      "trend_r2_2026": 0.477,
+      "confidence_score_2026": 79.8,
+      "confidence_label_2026": "High",
+      "supply_2026_change_pct": 34.1,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:503.9,2011:518.0,2012:679.6,2013:462.1,2014:428.8,2015:395.7,2016:546.6,2017:608.4,2018:684.3,2019:681.9,2020:637.8,2021:713.9,2022:801.8,2024:731.8282390548483,2025:757.0997959600661,2026:771.8136277861404",
+      "crop_mix": [
+        {
+          "district": "Dohad",
+          "crop": "wheat",
+          "croparea_ha": 59981.3,
+          "share_pct": 19.43
+        },
+        {
+          "district": "Dohad",
+          "crop": "chickpea",
+          "croparea_ha": 46914.9,
+          "share_pct": 15.19
+        },
+        {
+          "district": "Dohad",
+          "crop": "soybean",
+          "croparea_ha": 42588.2,
+          "share_pct": 13.79
+        },
+        {
+          "district": "Dohad",
+          "crop": "cotton",
+          "croparea_ha": 34377.3,
+          "share_pct": 11.13
+        },
+        {
+          "district": "Dohad",
+          "crop": "maize",
+          "croparea_ha": 18599.0,
+          "share_pct": 6.02
+        },
+        {
+          "district": "Dohad",
+          "crop": "rice",
+          "croparea_ha": 17951.6,
+          "share_pct": 5.81
+        },
+        {
+          "district": "Dohad",
+          "crop": "millet",
+          "croparea_ha": 17681.9,
+          "share_pct": 5.73
+        },
+        {
+          "district": "Dohad",
+          "crop": "pigeonpea",
+          "croparea_ha": 12584.5,
+          "share_pct": 4.08
+        }
+      ],
       "id": "Dohad"
     },
     {
@@ -429,77 +1652,153 @@
       "avg_elevation_2017": 272.211,
       "site_count_2017": 19,
       "residue_type": "Mixed agricultural residue",
-      "residue_type_source": "demo assumption",
+      "residue_type_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
+      "cropland_2020_ha": 58328.5,
+      "top_crop": "soybean",
+      "crop_mix_source": "CROPGRIDS v1.08 (2020 crop area, Tang et al. 2024, CC BY 4.0)",
+      "predicted_supply_2024": 111.175,
+      "predicted_supply_2025": 113.828,
+      "predicted_supply_2026": 110.004,
+      "rolling_3yr_2022": 109.065,
+      "trend_forecast_2026": 122.012,
+      "trend_r2_2026": 0.298,
+      "confidence_score_2026": 69.9,
+      "confidence_label_2026": "Moderate",
+      "supply_2026_change_pct": -7.0,
+      "supply_source": "2018 trend forecast extended with official DES Agristat district APY 2010-2022 (production x RPR residue, calibrated to Shell.ai units at 2017), projected iteratively to 2026",
+      "supply_trend": "2010:64.2,2011:97.3,2012:60.8,2013:107.4,2014:58.4,2015:92.0,2016:110.3,2017:97.6,2018:100.5,2019:86.0,2020:101.5,2021:132.5,2022:93.2,2024:111.1751104521356,2025:113.82830214132687,2026:110.00435282894196",
+      "crop_mix": [
+        {
+          "district": "The Dangs",
+          "crop": "soybean",
+          "croparea_ha": 14364.7,
+          "share_pct": 24.63
+        },
+        {
+          "district": "The Dangs",
+          "crop": "rice",
+          "croparea_ha": 11547.6,
+          "share_pct": 19.8
+        },
+        {
+          "district": "The Dangs",
+          "crop": "millet",
+          "croparea_ha": 6355.1,
+          "share_pct": 10.9
+        },
+        {
+          "district": "The Dangs",
+          "crop": "maize",
+          "croparea_ha": 5996.3,
+          "share_pct": 10.28
+        },
+        {
+          "district": "The Dangs",
+          "crop": "groundnut",
+          "croparea_ha": 5017.2,
+          "share_pct": 8.6
+        },
+        {
+          "district": "The Dangs",
+          "crop": "pigeonpea",
+          "croparea_ha": 4754.4,
+          "share_pct": 8.15
+        },
+        {
+          "district": "The Dangs",
+          "crop": "sorghum",
+          "croparea_ha": 2738.8,
+          "share_pct": 4.7
+        },
+        {
+          "district": "The Dangs",
+          "crop": "chickpea",
+          "croparea_ha": 2345.3,
+          "share_pct": 4.02
+        }
+      ],
       "id": "The Dangs"
     }
   ],
   "plants": [
     {
       "plant_id": "P1",
-      "plant_name": "AgriFlow Plant 1",
+      "plant_name": "Biofics Bio-CNG Plant",
       "representative_district": "Rajkot",
       "latitude": 22.122745,
       "longitude": 70.709604,
       "annual_capacity": 30000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 30000.0,
+      "utilization_pct": 100.0,
       "id": "P1"
     },
     {
       "plant_id": "P2",
-      "plant_name": "AgriFlow Plant 2",
+      "plant_name": "Bhavnagar Biomass Power Project",
       "representative_district": "Bhavnagar",
       "latitude": 21.621486,
       "longitude": 71.956497,
       "annual_capacity": 25000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 25000.0,
+      "utilization_pct": 100.0,
       "id": "P2"
     },
     {
       "plant_id": "P3",
-      "plant_name": "AgriFlow Plant 3",
+      "plant_name": "Rockstone Infrastructure CBG Plant",
       "representative_district": "Ahmadabad",
       "latitude": 22.862573,
       "longitude": 72.16126,
       "annual_capacity": 22000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 22000.0,
+      "utilization_pct": 100.0,
       "id": "P3"
     },
     {
       "plant_id": "P4",
-      "plant_name": "AgriFlow Plant 4",
+      "plant_name": "Reliance New Solar Energy CBG Plant",
       "representative_district": "Jamnagar",
       "latitude": 22.459506,
       "longitude": 70.260924,
       "annual_capacity": 22000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 22000.0,
+      "utilization_pct": 100.0,
       "id": "P4"
     },
     {
       "plant_id": "P5",
-      "plant_name": "AgriFlow Plant 5",
+      "plant_name": "APMC Surat CBG Plant",
       "representative_district": "Surat",
       "latitude": 21.354159,
       "longitude": 73.02082,
       "annual_capacity": 18000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 18000.0,
+      "utilization_pct": 100.0,
       "id": "P5"
     },
     {
       "plant_id": "P6",
-      "plant_name": "AgriFlow Plant 6",
+      "plant_name": "Goverdhannathji Energies CBG Plant",
       "representative_district": "Kheda",
       "latitude": 22.932698,
       "longitude": 72.947661,
       "annual_capacity": 18000.0,
       "capacity_unit": "dataset biomass units/year",
-      "facility_status": "synthetic demo facility",
+      "facility_status": "operating reference facility",
+      "current_utilization": 18000.0,
+      "utilization_pct": 100.0,
       "id": "P6"
     }
   ],
@@ -516,6 +1815,17 @@
       "id": "Amreli-2018"
     },
     {
+      "district": "Morbi",
+      "year": 2018,
+      "predicted_supply": 19335.045,
+      "trend_r2": 0.096,
+      "confidence_score_heuristic": 51.8,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2018"
+    },
+    {
       "district": "Rajkot",
       "year": 2018,
       "predicted_supply": 21771.129,
@@ -527,6 +1837,17 @@
       "id": "Rajkot-2018"
     },
     {
+      "district": "Jamnagar",
+      "year": 2018,
+      "predicted_supply": 16336.875,
+      "trend_r2": 0.076,
+      "confidence_score_heuristic": 39.5,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2018"
+    },
+    {
       "district": "Surendranagar",
       "year": 2018,
       "predicted_supply": 20638.424,
@@ -536,17 +1857,6 @@
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
       "id": "Surendranagar-2018"
-    },
-    {
-      "district": "Morbi",
-      "year": 2018,
-      "predicted_supply": 19335.045,
-      "trend_r2": 0.096,
-      "confidence_score_heuristic": 51.8,
-      "confidence_label": "Low",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "High",
-      "id": "Morbi-2018"
     },
     {
       "district": "Bhavnagar",
@@ -569,17 +1879,6 @@
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "High",
       "id": "Ahmadabad-2018"
-    },
-    {
-      "district": "Jamnagar",
-      "year": 2018,
-      "predicted_supply": 16336.875,
-      "trend_r2": 0.076,
-      "confidence_score_heuristic": 39.5,
-      "confidence_label": "Low",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "High",
-      "id": "Jamnagar-2018"
     },
     {
       "district": "Surat",
@@ -615,6 +1914,17 @@
       "id": "Kheda-2018"
     },
     {
+      "district": "Tapi",
+      "year": 2018,
+      "predicted_supply": 4667.025,
+      "trend_r2": 0.302,
+      "confidence_score_heuristic": 63.4,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2018"
+    },
+    {
       "district": "Chhota Udaipur",
       "year": 2018,
       "predicted_supply": 8166.564,
@@ -637,28 +1947,6 @@
       "id": "Gandhinagar-2018"
     },
     {
-      "district": "Sabar Kantha",
-      "year": 2018,
-      "predicted_supply": 5938.474,
-      "trend_r2": 0.295,
-      "confidence_score_heuristic": 63.1,
-      "confidence_label": "Moderate",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "Medium",
-      "id": "Sabar Kantha-2018"
-    },
-    {
-      "district": "Tapi",
-      "year": 2018,
-      "predicted_supply": 4667.025,
-      "trend_r2": 0.302,
-      "confidence_score_heuristic": 63.4,
-      "confidence_label": "Moderate",
-      "harvest_window": "Sep\u2013Nov (demo operational window)",
-      "supply_tier": "Low",
-      "id": "Tapi-2018"
-    },
-    {
       "district": "Porbandar",
       "year": 2018,
       "predicted_supply": 3399.284,
@@ -668,6 +1956,17 @@
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
       "id": "Porbandar-2018"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2018,
+      "predicted_supply": 5938.474,
+      "trend_r2": 0.295,
+      "confidence_score_heuristic": 63.1,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2018"
     },
     {
       "district": "Navsari",
@@ -723,80 +2022,1638 @@
       "harvest_window": "Sep\u2013Nov (demo operational window)",
       "supply_tier": "Low",
       "id": "The Dangs-2018"
+    },
+    {
+      "district": "Amreli",
+      "year": 2019,
+      "predicted_supply": 66651.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2019"
+    },
+    {
+      "district": "Amreli",
+      "year": 2020,
+      "predicted_supply": 42221.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2020"
+    },
+    {
+      "district": "Amreli",
+      "year": 2021,
+      "predicted_supply": 12728.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2021"
+    },
+    {
+      "district": "Amreli",
+      "year": 2022,
+      "predicted_supply": 59651.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2022"
+    },
+    {
+      "district": "Amreli",
+      "year": 2024,
+      "predicted_supply": 38148.954804621855,
+      "trend_r2": 0.008,
+      "confidence_score_heuristic": 46.8,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2024"
+    },
+    {
+      "district": "Amreli",
+      "year": 2025,
+      "predicted_supply": 37067.37911043598,
+      "trend_r2": 0.008,
+      "confidence_score_heuristic": 46.8,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2025"
+    },
+    {
+      "district": "Amreli",
+      "year": 2026,
+      "predicted_supply": 42558.33578458004,
+      "trend_r2": 0.008,
+      "confidence_score_heuristic": 46.8,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Amreli-2026"
+    },
+    {
+      "district": "Morbi",
+      "year": 2019,
+      "predicted_supply": 23719.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2019"
+    },
+    {
+      "district": "Morbi",
+      "year": 2020,
+      "predicted_supply": 19172.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2020"
+    },
+    {
+      "district": "Morbi",
+      "year": 2021,
+      "predicted_supply": 15317.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2021"
+    },
+    {
+      "district": "Morbi",
+      "year": 2022,
+      "predicted_supply": 67683.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2022"
+    },
+    {
+      "district": "Morbi",
+      "year": 2024,
+      "predicted_supply": 32576.18992953797,
+      "trend_r2": 0.0,
+      "confidence_score_heuristic": 41.9,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2024"
+    },
+    {
+      "district": "Morbi",
+      "year": 2025,
+      "predicted_supply": 36050.76037839933,
+      "trend_r2": 0.0,
+      "confidence_score_heuristic": 41.9,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2025"
+    },
+    {
+      "district": "Morbi",
+      "year": 2026,
+      "predicted_supply": 41432.69878543804,
+      "trend_r2": 0.0,
+      "confidence_score_heuristic": 41.9,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Morbi-2026"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2019,
+      "predicted_supply": 44986.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2019"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2020,
+      "predicted_supply": 33340.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2020"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2021,
+      "predicted_supply": 13752.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2021"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2022,
+      "predicted_supply": 41057.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2022"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2024,
+      "predicted_supply": 26785.937463814706,
+      "trend_r2": 0.089,
+      "confidence_score_heuristic": 51.2,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2024"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2025,
+      "predicted_supply": 25402.573649404625,
+      "trend_r2": 0.089,
+      "confidence_score_heuristic": 51.2,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2025"
+    },
+    {
+      "district": "Rajkot",
+      "year": 2026,
+      "predicted_supply": 28090.158449633665,
+      "trend_r2": 0.089,
+      "confidence_score_heuristic": 51.2,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Rajkot-2026"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2019,
+      "predicted_supply": 19467.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2019"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2020,
+      "predicted_supply": 16622.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2020"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2021,
+      "predicted_supply": 6805.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2021"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2022,
+      "predicted_supply": 27189.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2022"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2024,
+      "predicted_supply": 15784.915781142732,
+      "trend_r2": 0.058,
+      "confidence_score_heuristic": 49.4,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2024"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2025,
+      "predicted_supply": 15640.48496475002,
+      "trend_r2": 0.058,
+      "confidence_score_heuristic": 49.4,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2025"
+    },
+    {
+      "district": "Jamnagar",
+      "year": 2026,
+      "predicted_supply": 17720.400592672086,
+      "trend_r2": 0.058,
+      "confidence_score_heuristic": 49.4,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Jamnagar-2026"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2019,
+      "predicted_supply": 17470.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2019"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2020,
+      "predicted_supply": 18818.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2020"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2021,
+      "predicted_supply": 5265.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2021"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2022,
+      "predicted_supply": 25471.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2022"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2024,
+      "predicted_supply": 15413.561769277749,
+      "trend_r2": 0.2,
+      "confidence_score_heuristic": 54.6,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2024"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2025,
+      "predicted_supply": 14613.656566988806,
+      "trend_r2": 0.2,
+      "confidence_score_heuristic": 54.6,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2025"
+    },
+    {
+      "district": "Surendranagar",
+      "year": 2026,
+      "predicted_supply": 16715.4058355545,
+      "trend_r2": 0.2,
+      "confidence_score_heuristic": 54.6,
+      "confidence_label": "Low",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Surendranagar-2026"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2019,
+      "predicted_supply": 26187.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2019"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2020,
+      "predicted_supply": 22185.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2020"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2021,
+      "predicted_supply": 5593.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2021"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2022,
+      "predicted_supply": 22659.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2022"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2024,
+      "predicted_supply": 15534.259435663207,
+      "trend_r2": 0.245,
+      "confidence_score_heuristic": 57.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2024"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2025,
+      "predicted_supply": 13927.345532002066,
+      "trend_r2": 0.245,
+      "confidence_score_heuristic": 57.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2025"
+    },
+    {
+      "district": "Bhavnagar",
+      "year": 2026,
+      "predicted_supply": 15685.797876676756,
+      "trend_r2": 0.245,
+      "confidence_score_heuristic": 57.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Bhavnagar-2026"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2019,
+      "predicted_supply": 15709.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2019"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2020,
+      "predicted_supply": 16637.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2020"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2021,
+      "predicted_supply": 12205.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2021"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2022,
+      "predicted_supply": 16435.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2022"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2024,
+      "predicted_supply": 14073.618148083218,
+      "trend_r2": 0.541,
+      "confidence_score_heuristic": 76.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2024"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2025,
+      "predicted_supply": 13506.886526547285,
+      "trend_r2": 0.541,
+      "confidence_score_heuristic": 76.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2025"
+    },
+    {
+      "district": "Ahmadabad",
+      "year": 2026,
+      "predicted_supply": 13778.05669718471,
+      "trend_r2": 0.541,
+      "confidence_score_heuristic": 76.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "High",
+      "id": "Ahmadabad-2026"
+    },
+    {
+      "district": "Surat",
+      "year": 2019,
+      "predicted_supply": 8069.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2019"
+    },
+    {
+      "district": "Surat",
+      "year": 2020,
+      "predicted_supply": 10219.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2020"
+    },
+    {
+      "district": "Surat",
+      "year": 2021,
+      "predicted_supply": 10624.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2021"
+    },
+    {
+      "district": "Surat",
+      "year": 2022,
+      "predicted_supply": 9919.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2022"
+    },
+    {
+      "district": "Surat",
+      "year": 2024,
+      "predicted_supply": 10107.948438764666,
+      "trend_r2": 0.006,
+      "confidence_score_heuristic": 64.5,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2024"
+    },
+    {
+      "district": "Surat",
+      "year": 2025,
+      "predicted_supply": 10130.864261669598,
+      "trend_r2": 0.006,
+      "confidence_score_heuristic": 64.5,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2025"
+    },
+    {
+      "district": "Surat",
+      "year": 2026,
+      "predicted_supply": 10051.464303605428,
+      "trend_r2": 0.006,
+      "confidence_score_heuristic": 64.5,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Surat-2026"
+    },
+    {
+      "district": "Patan",
+      "year": 2019,
+      "predicted_supply": 8188.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2019"
+    },
+    {
+      "district": "Patan",
+      "year": 2020,
+      "predicted_supply": 9262.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2020"
+    },
+    {
+      "district": "Patan",
+      "year": 2021,
+      "predicted_supply": 7315.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2021"
+    },
+    {
+      "district": "Patan",
+      "year": 2022,
+      "predicted_supply": 11613.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2022"
+    },
+    {
+      "district": "Patan",
+      "year": 2024,
+      "predicted_supply": 8962.625657792845,
+      "trend_r2": 0.163,
+      "confidence_score_heuristic": 61.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2024"
+    },
+    {
+      "district": "Patan",
+      "year": 2025,
+      "predicted_supply": 8937.321474901059,
+      "trend_r2": 0.163,
+      "confidence_score_heuristic": 61.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2025"
+    },
+    {
+      "district": "Patan",
+      "year": 2026,
+      "predicted_supply": 9343.163739510794,
+      "trend_r2": 0.163,
+      "confidence_score_heuristic": 61.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Patan-2026"
+    },
+    {
+      "district": "Kheda",
+      "year": 2019,
+      "predicted_supply": 8452.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2019"
+    },
+    {
+      "district": "Kheda",
+      "year": 2020,
+      "predicted_supply": 8241.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2020"
+    },
+    {
+      "district": "Kheda",
+      "year": 2021,
+      "predicted_supply": 7439.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2021"
+    },
+    {
+      "district": "Kheda",
+      "year": 2022,
+      "predicted_supply": 8678.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2022"
+    },
+    {
+      "district": "Kheda",
+      "year": 2024,
+      "predicted_supply": 7963.664614614358,
+      "trend_r2": 0.138,
+      "confidence_score_heuristic": 69.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2024"
+    },
+    {
+      "district": "Kheda",
+      "year": 2025,
+      "predicted_supply": 7908.269273161575,
+      "trend_r2": 0.138,
+      "confidence_score_heuristic": 69.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2025"
+    },
+    {
+      "district": "Kheda",
+      "year": 2026,
+      "predicted_supply": 8018.638903231902,
+      "trend_r2": 0.138,
+      "confidence_score_heuristic": 69.0,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Kheda-2026"
+    },
+    {
+      "district": "Tapi",
+      "year": 2019,
+      "predicted_supply": 5045.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2019"
+    },
+    {
+      "district": "Tapi",
+      "year": 2020,
+      "predicted_supply": 5441.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2020"
+    },
+    {
+      "district": "Tapi",
+      "year": 2021,
+      "predicted_supply": 5153.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2021"
+    },
+    {
+      "district": "Tapi",
+      "year": 2022,
+      "predicted_supply": 5857.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2022"
+    },
+    {
+      "district": "Tapi",
+      "year": 2024,
+      "predicted_supply": 5732.614911325454,
+      "trend_r2": 0.781,
+      "confidence_score_heuristic": 90.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2024"
+    },
+    {
+      "district": "Tapi",
+      "year": 2025,
+      "predicted_supply": 5823.533670202474,
+      "trend_r2": 0.781,
+      "confidence_score_heuristic": 90.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2025"
+    },
+    {
+      "district": "Tapi",
+      "year": 2026,
+      "predicted_supply": 6005.31115359239,
+      "trend_r2": 0.781,
+      "confidence_score_heuristic": 90.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Tapi-2026"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2019,
+      "predicted_supply": 7944.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2019"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2020,
+      "predicted_supply": 7098.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2020"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2021,
+      "predicted_supply": 1506.7,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2021"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2022,
+      "predicted_supply": 7851.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2022"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2024,
+      "predicted_supply": 5453.009137462475,
+      "trend_r2": 0.338,
+      "confidence_score_heuristic": 61.2,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2024"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2025,
+      "predicted_supply": 4986.987431643762,
+      "trend_r2": 0.338,
+      "confidence_score_heuristic": 61.2,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2025"
+    },
+    {
+      "district": "Chhota Udaipur",
+      "year": 2026,
+      "predicted_supply": 5699.820041985575,
+      "trend_r2": 0.338,
+      "confidence_score_heuristic": 61.2,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Chhota Udaipur-2026"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2019,
+      "predicted_supply": 6045.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2019"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2020,
+      "predicted_supply": 5962.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2020"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2021,
+      "predicted_supply": 4045.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2021"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2022,
+      "predicted_supply": 6359.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2022"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2024,
+      "predicted_supply": 5244.667919170302,
+      "trend_r2": 0.691,
+      "confidence_score_heuristic": 81.9,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2024"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2025,
+      "predicted_supply": 5048.548249102567,
+      "trend_r2": 0.691,
+      "confidence_score_heuristic": 81.9,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2025"
+    },
+    {
+      "district": "Gandhinagar",
+      "year": 2026,
+      "predicted_supply": 5244.222630377606,
+      "trend_r2": 0.691,
+      "confidence_score_heuristic": 81.9,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Gandhinagar-2026"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2019,
+      "predicted_supply": 4635.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2019"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2020,
+      "predicted_supply": 3894.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2020"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2021,
+      "predicted_supply": 4367.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2021"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2022,
+      "predicted_supply": 5146.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2022"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2024,
+      "predicted_supply": 4479.64394988686,
+      "trend_r2": 0.025,
+      "confidence_score_heuristic": 59.3,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2024"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2025,
+      "predicted_supply": 4633.406437757358,
+      "trend_r2": 0.025,
+      "confidence_score_heuristic": 59.3,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2025"
+    },
+    {
+      "district": "Porbandar",
+      "year": 2026,
+      "predicted_supply": 4721.233066105233,
+      "trend_r2": 0.025,
+      "confidence_score_heuristic": 59.3,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Porbandar-2026"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2019,
+      "predicted_supply": 4952.3,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2019"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2020,
+      "predicted_supply": 5443.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2020"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2021,
+      "predicted_supply": 3659.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2021"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2022,
+      "predicted_supply": 5652.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2022"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2024,
+      "predicted_supply": 4287.352262854386,
+      "trend_r2": 0.672,
+      "confidence_score_heuristic": 79.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2024"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2025,
+      "predicted_supply": 4019.0210304569737,
+      "trend_r2": 0.672,
+      "confidence_score_heuristic": 79.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2025"
+    },
+    {
+      "district": "Sabar Kantha",
+      "year": 2026,
+      "predicted_supply": 4077.5477572227,
+      "trend_r2": 0.672,
+      "confidence_score_heuristic": 79.0,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Medium",
+      "id": "Sabar Kantha-2026"
+    },
+    {
+      "district": "Navsari",
+      "year": 2019,
+      "predicted_supply": 2645.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2019"
+    },
+    {
+      "district": "Navsari",
+      "year": 2020,
+      "predicted_supply": 2582.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2020"
+    },
+    {
+      "district": "Navsari",
+      "year": 2021,
+      "predicted_supply": 2863.6,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2021"
+    },
+    {
+      "district": "Navsari",
+      "year": 2022,
+      "predicted_supply": 2787.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2022"
+    },
+    {
+      "district": "Navsari",
+      "year": 2024,
+      "predicted_supply": 2636.48183932972,
+      "trend_r2": 0.078,
+      "confidence_score_heuristic": 66.7,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2024"
+    },
+    {
+      "district": "Navsari",
+      "year": 2025,
+      "predicted_supply": 2659.6307099370238,
+      "trend_r2": 0.078,
+      "confidence_score_heuristic": 66.7,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2025"
+    },
+    {
+      "district": "Navsari",
+      "year": 2026,
+      "predicted_supply": 2621.0437364975583,
+      "trend_r2": 0.078,
+      "confidence_score_heuristic": 66.7,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Navsari-2026"
+    },
+    {
+      "district": "Valsad",
+      "year": 2019,
+      "predicted_supply": 2024.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2019"
+    },
+    {
+      "district": "Valsad",
+      "year": 2020,
+      "predicted_supply": 2099.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2020"
+    },
+    {
+      "district": "Valsad",
+      "year": 2021,
+      "predicted_supply": 2062.1,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2021"
+    },
+    {
+      "district": "Valsad",
+      "year": 2022,
+      "predicted_supply": 2214.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2022"
+    },
+    {
+      "district": "Valsad",
+      "year": 2024,
+      "predicted_supply": 2162.2196811142785,
+      "trend_r2": 0.125,
+      "confidence_score_heuristic": 71.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2024"
+    },
+    {
+      "district": "Valsad",
+      "year": 2025,
+      "predicted_supply": 2176.2059307244754,
+      "trend_r2": 0.125,
+      "confidence_score_heuristic": 71.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2025"
+    },
+    {
+      "district": "Valsad",
+      "year": 2026,
+      "predicted_supply": 2203.760558160465,
+      "trend_r2": 0.125,
+      "confidence_score_heuristic": 71.6,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Valsad-2026"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2019,
+      "predicted_supply": 1929.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2019"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2020,
+      "predicted_supply": 1521.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2020"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2021,
+      "predicted_supply": 1860.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2021"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2022,
+      "predicted_supply": 2524.4,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2022"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2024,
+      "predicted_supply": 1951.8669389450065,
+      "trend_r2": 0.004,
+      "confidence_score_heuristic": 59.8,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2024"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2025,
+      "predicted_supply": 2055.007974396904,
+      "trend_r2": 0.004,
+      "confidence_score_heuristic": 59.8,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2025"
+    },
+    {
+      "district": "Mahisagar",
+      "year": 2026,
+      "predicted_supply": 2111.206662902897,
+      "trend_r2": 0.004,
+      "confidence_score_heuristic": 59.8,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Mahisagar-2026"
+    },
+    {
+      "district": "Dohad",
+      "year": 2019,
+      "predicted_supply": 681.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2019"
+    },
+    {
+      "district": "Dohad",
+      "year": 2020,
+      "predicted_supply": 637.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2020"
+    },
+    {
+      "district": "Dohad",
+      "year": 2021,
+      "predicted_supply": 713.9,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2021"
+    },
+    {
+      "district": "Dohad",
+      "year": 2022,
+      "predicted_supply": 801.8,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2022"
+    },
+    {
+      "district": "Dohad",
+      "year": 2024,
+      "predicted_supply": 731.8282390548483,
+      "trend_r2": 0.477,
+      "confidence_score_heuristic": 79.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2024"
+    },
+    {
+      "district": "Dohad",
+      "year": 2025,
+      "predicted_supply": 757.0997959600661,
+      "trend_r2": 0.477,
+      "confidence_score_heuristic": 79.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2025"
+    },
+    {
+      "district": "Dohad",
+      "year": 2026,
+      "predicted_supply": 771.8136277861404,
+      "trend_r2": 0.477,
+      "confidence_score_heuristic": 79.8,
+      "confidence_label": "High",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "Dohad-2026"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2019,
+      "predicted_supply": 86.0,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2019"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2020,
+      "predicted_supply": 101.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2020"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2021,
+      "predicted_supply": 132.5,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2021"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2022,
+      "predicted_supply": 93.2,
+      "trend_r2": null,
+      "confidence_score_heuristic": null,
+      "confidence_label": null,
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2022"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2024,
+      "predicted_supply": 111.1751104521356,
+      "trend_r2": 0.298,
+      "confidence_score_heuristic": 69.9,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2024"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2025,
+      "predicted_supply": 113.82830214132687,
+      "trend_r2": 0.298,
+      "confidence_score_heuristic": 69.9,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2025"
+    },
+    {
+      "district": "The Dangs",
+      "year": 2026,
+      "predicted_supply": 110.00435282894196,
+      "trend_r2": 0.298,
+      "confidence_score_heuristic": 69.9,
+      "confidence_label": "Moderate",
+      "harvest_window": "Sep\u2013Nov (demo operational window)",
+      "supply_tier": "Low",
+      "id": "The Dangs-2026"
     }
   ],
   "matches": [
     {
-      "id": 1,
       "district": "Amreli",
-      "plant_id": "P2",
-      "allocated_quantity": 25000.0,
+      "matched_plant_id": "P2",
+      "matched_supply": 25000.0,
       "distance_km": 66.7,
       "pickup_order": 1,
-      "status": "matched"
+      "status": "matched",
+      "id": 1
     },
     {
-      "id": 2,
       "district": "Amreli",
-      "plant_id": "P1",
-      "allocated_quantity": 8375.3,
+      "matched_plant_id": "P1",
+      "matched_supply": 17558.3,
       "distance_km": 95.8,
       "pickup_order": 2,
-      "status": "matched"
+      "status": "matched",
+      "id": 2
     },
     {
-      "id": 3,
-      "district": "Rajkot",
-      "plant_id": "P1",
-      "allocated_quantity": 21624.7,
-      "distance_km": 0.0,
-      "pickup_order": 1,
-      "status": "matched"
-    },
-    {
-      "id": 4,
-      "district": "Surendranagar",
-      "plant_id": "P3",
-      "allocated_quantity": 20638.4,
-      "distance_km": 58.2,
-      "pickup_order": 1,
-      "status": "matched"
-    },
-    {
-      "id": 5,
       "district": "Morbi",
-      "plant_id": "P4",
-      "allocated_quantity": 19335.0,
+      "matched_plant_id": "P4",
+      "matched_supply": 22000.0,
       "distance_km": 89.4,
+      "pickup_order": 1,
+      "status": "matched",
+      "id": 3
+    },
+    {
+      "district": "Morbi",
+      "matched_plant_id": "P1",
+      "matched_supply": 12441.7,
+      "distance_km": 90.5,
+      "pickup_order": 1,
+      "status": "matched",
+      "id": 4
+    },
+    {
+      "district": "Morbi",
+      "matched_plant_id": "P3",
+      "matched_supply": 6991.0,
+      "distance_km": 119.6,
+      "pickup_order": 1,
+      "status": "matched",
+      "id": 5
+    },
+    {
+      "district": "Rajkot",
+      "matched_plant_id": "P3",
+      "matched_supply": 15009.0,
+      "distance_km": 170.3,
       "pickup_order": 2,
-      "status": "matched"
+      "status": "matched",
+      "id": 6
     },
     {
-      "id": 6,
-      "district": "Bhavnagar",
-      "plant_id": "P5",
-      "allocated_quantity": 18000.0,
-      "distance_km": 114.1,
+      "district": "Rajkot",
+      "matched_plant_id": "P6",
+      "matched_supply": 13081.2,
+      "distance_km": 246.9,
       "pickup_order": 1,
-      "status": "matched"
+      "status": "matched",
+      "id": 7
     },
     {
-      "id": 7,
-      "district": "Ahmadabad",
-      "plant_id": "P6",
-      "allocated_quantity": 17046.0,
-      "distance_km": 80.9,
-      "pickup_order": 1,
-      "status": "matched"
-    },
-    {
-      "id": 8,
       "district": "Jamnagar",
-      "plant_id": "P4",
-      "allocated_quantity": 2665.0,
-      "distance_km": 0.0,
+      "matched_plant_id": "P6",
+      "matched_supply": 4918.8,
+      "distance_km": 280.6,
+      "pickup_order": 2,
+      "status": "matched",
+      "id": 8
+    },
+    {
+      "district": "Jamnagar",
+      "matched_plant_id": "P5",
+      "matched_supply": 12801.6,
+      "distance_km": 310.1,
+      "pickup_order": 2,
+      "status": "matched",
+      "id": 9
+    },
+    {
+      "district": "Surendranagar",
+      "matched_plant_id": "P5",
+      "matched_supply": 5198.4,
+      "distance_km": 225.5,
       "pickup_order": 1,
-      "status": "matched"
+      "status": "matched",
+      "id": 10
     }
   ]
 }

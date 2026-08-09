@@ -17,6 +17,49 @@ function fmt(n) {
   return (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
 }
 
+// CROPGRIDS crop names are lowercase keys like "groundnut"/"cotton".
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : "");
+const topCrop = (d) => (d?.crop_mix?.[0]?.crop ? cap(d.crop_mix[0].crop) : null);
+
+// 2026 supply outlook (falls back to 2024/2018 forecasts for older backends).
+const supply2026 = (d) =>
+  (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0);
+
+// Inline SVG sparkline for a "year:value,..." supply_trend string.
+function TrendSpark({ trend }) {
+  const pts = (trend || "")
+    .split(",")
+    .map((p) => p.split(":"))
+    .filter((p) => p.length === 2 && !Number.isNaN(Number(p[1])))
+    .map(([y, v]) => [Number(y), Number(v)]);
+  if (pts.length < 2) return null;
+  const w = 220;
+  const h = 40;
+  const vals = pts.map((p) => p[1]);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const rng = max - min || 1;
+  const x = (i) => (i / (pts.length - 1)) * (w - 6) + 3;
+  const y = (v) => h - 4 - ((v - min) / rng) * (h - 8);
+  const path = pts
+    .map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`)
+    .join(" ");
+  return (
+    <svg width={w} height={h} className="trend-spark" role="img" aria-label="supply trend 2010 to 2026">
+      <polyline points={path} fill="none" stroke="var(--green)" strokeWidth={1.6} />
+      {pts.map((p, i) => (
+        <circle
+          key={p[0]}
+          cx={x(i)}
+          cy={y(p[1])}
+          r={i === pts.length - 1 ? 2.8 : 1.4}
+          fill={i === pts.length - 1 ? "var(--accent)" : "var(--green)"}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export default function App() {
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
@@ -42,12 +85,6 @@ export default function App() {
   const [insights, setInsights] = useState([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
 
-  // Route economics (sale profit vs transport cost) — /economics.
-  // Loaded in its own effect with its own loading/error state so a slow or
-  // failing economics call never blocks the map/panel/chat.
-  const [economics, setEconomics] = useState(null);
-  const [economicsLoading, setEconomicsLoading] = useState(true);
-
   // Plant siting simulator state. simMode = user is in "click the map to
   // place a plant" mode. simMarker = the placed {lat, lng}, null until they
   // click. simResult = last /simulate/plant response, cleared whenever the
@@ -69,7 +106,7 @@ export default function App() {
         setMatches(m);
         // Stats computed client-side so the UI works against any backend
         // contract (no /sustainability dependency).
-        const totalSupply = d.reduce((s, x) => s + (x.predicted_supply_2018 || 0), 0);
+        const totalSupply = d.reduce((s, x) => s + supply2026(x), 0);
         const matched = m.reduce((s, x) => s + (x.matched_supply || 0), 0);
         setSummary({
           total_predicted_supply_units: totalSupply,
@@ -117,16 +154,6 @@ export default function App() {
     };
   }, []);
 
-  // Route economics, separate from the main data load on purpose — same
-  // rationale as insights: a slow/failed call shouldn't break the map.
-  useEffect(() => {
-    api
-      .economics()
-      .then(setEconomics)
-      .catch(() => setEconomics(null)) // fail silent — section just won't render
-      .finally(() => setEconomicsLoading(false));
-  }, []);
-
   // Draw the map once the data is loaded.
   useEffect(() => {
     if (!mapElRef.current) return;
@@ -147,13 +174,16 @@ export default function App() {
     const districtLayer = L.layerGroup();
     districts.forEach((d) => {
       L.circleMarker([d.latitude, d.longitude], {
-        radius: 6 + Math.sqrt(d.predicted_supply_2018) / 45,
+        radius: 6 + Math.sqrt(supply2026(d)) / 45,
         color: TIER_COLORS[d.supply_tier] || "#888888",
         fillColor: TIER_COLORS[d.supply_tier] || "#888888",
         fillOpacity: 0.75,
         weight: 1,
       })
-        .bindTooltip(`${d.district} — ${fmt(d.predicted_supply_2018)} units`)
+        .bindTooltip(
+          `${d.district} — ${fmt(supply2026(d))} units (2026)` +
+            (topCrop(d) ? ` · ${topCrop(d)}` : "")
+        )
         .on("click", () => setSelected({ kind: "district", data: d }))
         .addTo(districtLayer);
     });
@@ -428,8 +458,6 @@ export default function App() {
 
       <SupplyExplorer districts={districts} plants={plants} matches={matches} />
 
-      <EconomicsSection economics={economics} loading={economicsLoading} />
-
       {aiOpen && (
         <AIAssistantPanel
           chat={chat}
@@ -452,16 +480,49 @@ function DistrictCard({ d, onClose }) {
         {d.supply_tier} supply
       </span>
       <dl>
-        <dt>Predicted supply (2018)</dt>
-        <dd>{fmt(d.predicted_supply_2018)} units</dd>
+        <dt>Predicted supply (2026)</dt>
+        <dd>{fmt(supply2026(d))} units</dd>
+        {d.supply_trend && (
+          <>
+            <dt>Supply trend (2010 → 2026)</dt>
+            <dd>
+              <TrendSpark trend={d.supply_trend} />
+            </dd>
+          </>
+        )}
         <dt>Confidence</dt>
         <dd>
-          {d.confidence_score_heuristic} ({d.confidence_label})
+          {d.confidence_score_2026 ?? d.confidence_score_2024 ?? d.confidence_score_heuristic}{" "}
+          ({d.confidence_label_2026 ?? d.confidence_label_2024 ?? d.confidence_label})
         </dd>
         <dt>Residue type</dt>
-        <dd>{d.residue_type}</dd>
+        <dd title={d.residue_type_source}>{d.residue_type}</dd>
         <dt>Harvest window</dt>
         <dd>{d.harvest_window}</dd>
+        {d.crop_mix?.length > 0 && (
+          <>
+            <dt>Crop mix</dt>
+            <dd>
+              <ul className="crop-mix">
+                {d.crop_mix.slice(0, 3).map((c) => (
+                  <li key={c.crop} className="crop-mix-row">
+                    <span className="crop-mix-name">{cap(c.crop)}</span>
+                    <span className="crop-mix-bar">
+                      <span style={{ width: `${Math.min(100, c.share_pct)}%` }} />
+                    </span>
+                    <span className="crop-mix-pct">{c.share_pct}%</span>
+                  </li>
+                ))}
+              </ul>
+              <span className="crop-mix-foot">
+                {d.cropland_2020_ha != null
+                  ? `${fmt(d.cropland_2020_ha)} ha cropped area · `
+                  : ""}
+                CROPGRIDS v1.08
+              </span>
+            </dd>
+          </>
+        )}
         <dt>Baseline (2017)</dt>
         <dd>{fmt(d.baseline_supply_2017)} units</dd>
         <dt>Sites aggregated</dt>
@@ -565,54 +626,3 @@ function PlantCard({ p, onClose }) {
   );
 }
 
-// Route economics section — sale profit vs transport cost. Renders only
-// when /economics responds; a failed/slow call leaves it out entirely
-// (same fail-silent rule as the insights strip).
-function EconomicsSection({ economics, loading }) {
-  if (loading || !economics) return null;
-  const s = economics.summary || {};
-  const breakeven = economics.breakeven_distance_km;
-
-  const money = (n) =>
-    (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-
-  return (
-    <section className="econ">
-      <div className="econ-heading">
-        <h2>Is it worth collecting?</h2>
-        <p>
-          Sale profit vs transport cost per matched route, at demo rates
-          (price {money(economics.parameters?.sale_price_per_unit)} / unit,
-          haulage {economics.parameters?.cost_per_km_per_unit} / km / unit,
-          round trip ×{economics.parameters?.round_trip_factor}).
-        </p>
-      </div>
-
-      <div className="econ-stats">
-        <div className="econ-stat">
-          <span className="econ-stat-label">Revenue</span>
-          <b>{money(s.revenue)}</b>
-        </div>
-        <div className="econ-stat">
-          <span className="econ-stat-label">Transport cost</span>
-          <b>{money(s.transport_cost)}</b>
-        </div>
-        <div className="econ-stat">
-          <span className="econ-stat-label">Net profit</span>
-          <b className={s.profit >= 0 ? "econ-good" : "econ-bad"}>
-            {money(s.profit)}
-          </b>
-        </div>
-        <div className="econ-stat">
-          <span className="econ-stat-label">Margin</span>
-          <b>{s.margin_pct ?? 0}%</b>
-        </div>
-        <div className="econ-stat">
-          <span className="econ-stat-label">Breakeven haul</span>
-          <b>{breakeven != null ? `${breakeven} km` : "—"}</b>
-        </div>
-      </div>
-
-    </section>
-  );
-}

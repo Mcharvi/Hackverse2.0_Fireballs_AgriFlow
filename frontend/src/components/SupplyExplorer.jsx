@@ -17,7 +17,13 @@ export default function SupplyExplorer({ districts, plants, matches }) {
     [matches]
   );
   const totalSupply = useMemo(
-    () => districts.reduce((s, d) => s + (d.predicted_supply_2018 || 0), 0),
+    () =>
+      districts.reduce(
+        (s, d) =>
+          s +
+          (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0),
+        0
+      ),
     [districts]
   );
   const matchedUnits = useMemo(
@@ -57,21 +63,23 @@ export default function SupplyExplorer({ districts, plants, matches }) {
 }
 
 function SupplyTab({ districts, total }) {
-  const rows = [...districts].sort(
-    (a, b) => (b.predicted_supply_2018 || 0) - (a.predicted_supply_2018 || 0)
-  );
+  const supplyOf = (d) =>
+    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0;
+  const rows = [...districts].sort((a, b) => supplyOf(b) - supplyOf(a));
   return (
     <>
       <div className="explorer-meta">
-        <b>{fmt(total)}</b> units predicted across <b>{rows.length}</b> districts — the 2018
-        forecast blends the 3-yr rolling baseline with a trend, clipped ±15%.
+        <b>{fmt(total)}</b> units predicted across <b>{rows.length}</b> districts — the
+        2026 forecast extends the original challenge-series trend with official district
+        APY residue (DES Agristat 2010–2022), projected iteratively 2024 → 2026 with the
+        same blend: 70% rolling mean + 30% trend, clipped ±15%.
       </div>
       <table className="explorer-table">
         <thead>
           <tr>
             <th>District</th>
             <th>Tier</th>
-            <th>Predicted supply</th>
+            <th>Predicted supply (2026)</th>
             <th>Confidence</th>
             <th>Harvest window</th>
             <th>Residue</th>
@@ -92,9 +100,15 @@ function SupplyTab({ districts, total }) {
                   {d.supply_tier}
                 </span>
               </td>
-              <td>{fmt(d.predicted_supply_2018)} units</td>
               <td>
-                {d.confidence_score_heuristic} ({d.confidence_label})
+                {fmt(
+                  d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018
+                )}{" "}
+                units
+              </td>
+              <td>
+                {d.confidence_score_2026 ?? d.confidence_score_2024 ?? d.confidence_score_heuristic}{" "}
+                ({d.confidence_label_2026 ?? d.confidence_label_2024 ?? d.confidence_label})
               </td>
               <td>{d.harvest_window}</td>
               <td>{d.residue_type}</td>
@@ -196,9 +210,9 @@ function PlantsTab({ plants }) {
 }
 
 function LeftoverTab({ unmatched, total }) {
-  const rows = [...unmatched].sort(
-    (a, b) => (b.predicted_supply_2018 || 0) - (a.predicted_supply_2018 || 0)
-  );
+  const supplyOf = (d) =>
+    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0;
+  const rows = [...unmatched].sort((a, b) => supplyOf(b) - supplyOf(a));
   return (
     <>
       <div className="explorer-meta">
@@ -232,7 +246,12 @@ function LeftoverTab({ unmatched, total }) {
                     {d.supply_tier}
                   </span>
                 </td>
-                <td>{fmt(d.predicted_supply_2018)} units</td>
+                <td>
+                  {fmt(
+                    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018
+                  )}{" "}
+                  units
+                </td>
                 <td>{d.residue_type}</td>
               </tr>
             ))}

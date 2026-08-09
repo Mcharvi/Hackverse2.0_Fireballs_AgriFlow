@@ -16,7 +16,6 @@ export const api = {
   matches: () => get("/matches"),
   sustainability: () => get("/sustainability"),
   insights: () => get("/assistant/insights"),
-  economics: () => get("/economics"),
   simulatePlant: async ({ latitude, longitude, annual_capacity, plant_name }) => {
     const res = await fetch(`${API_BASE}/simulate/plant`, {
       method: "POST",

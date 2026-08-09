@@ -51,12 +51,23 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 2 * EARTH_RADIUS_KM * math.asin(math.sqrt(a))
 
 
+def district_supply(d: dict) -> float:
+    """Latest available forecast for a district — 2026 primary, with the 2024
+    and 2018 forecasts as fallbacks for older data layers."""
+    for key in ("predicted_supply_2026", "predicted_supply_2024", "predicted_supply_2018"):
+        value = d.get(key)
+        if value:
+            return float(value)
+    return 0.0
+
+
 def load_districts(conn: sqlite3.Connection) -> list[dict]:
     conn.row_factory = sqlite3.Row
     return [
         dict(r)
         for r in conn.execute(
-            "SELECT district, latitude, longitude, predicted_supply_2018 FROM districts"
+            "SELECT district, latitude, longitude, predicted_supply_2018, "
+            "predicted_supply_2024, predicted_supply_2026 FROM districts"
         )
     ]
 
@@ -84,9 +95,9 @@ def compute_matches(
 
     for district in sorted(
         districts,
-        key=lambda d: (-float(d["predicted_supply_2018"]), d["district"]),
+        key=lambda d: (-district_supply(d), d["district"]),
     ):
-        supply = float(district["predicted_supply_2018"])
+        supply = district_supply(district)
         to_assign = supply
 
         # Nearest plants first (distance tie-break by plant id).
@@ -144,7 +155,7 @@ def compute_matches(
 
 
 def summarize(matches: list[dict], districts: list[dict], plants: list[dict]) -> dict:
-    total_supply = sum(float(d["predicted_supply_2018"]) for d in districts)
+    total_supply = sum(district_supply(d) for d in districts)
     matched = sum(m["allocated_quantity"] for m in matches)
     utilization = {}
     for p in plants:

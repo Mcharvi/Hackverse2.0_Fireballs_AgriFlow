@@ -113,7 +113,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_plant_details",
-            "description": "Get a plant's capacity, location, current utilization, and status by plant name or plant_id (e.g. 'P1' or 'AgriFlow Plant 1').",
+            "description": "Get a plant's capacity, location, current utilization, and status by plant name or plant_id (e.g. 'P1' or 'Biofics Bio-CNG Plant').",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -191,9 +191,18 @@ def _get_unmatched_districts(_args, load_all_districts, get_matches, **_):
     return {"unmatched_districts": [d["district"] for d in districts if d["district"] not in matched_names]}
 
 
+def _latest_supply(d: dict) -> float:
+    """Latest available forecast — 2026 primary, 2024/2018 fallbacks."""
+    for key in ("predicted_supply_2026", "predicted_supply_2024", "predicted_supply_2018"):
+        value = d.get(key)
+        if value:
+            return float(value)
+    return 0.0
+
+
 def _get_top_supply_districts(args, load_all_districts, **_):
     n = int(args.get("n", 5))
-    districts = sorted(load_all_districts(), key=lambda d: -d["predicted_supply_2018"])
+    districts = sorted(load_all_districts(), key=lambda d: -_latest_supply(d))
     return {"top_districts": districts[:n]}
 
 
@@ -401,16 +410,16 @@ def generate_insights(
     # never mentions it.
     economics = get_economics() if get_economics is not None else None
 
-    top_districts = sorted(districts, key=lambda d: -d["predicted_supply_2018"])[:5]
+    top_districts = sorted(districts, key=lambda d: -_latest_supply(d))[:5]
     plants_by_util = sorted(plants, key=lambda p: p["utilization_pct"])
 
-    total_supply = sum(d["predicted_supply_2018"] for d in districts)
+    total_supply = sum(_latest_supply(d) for d in districts)
     total_matched = sum(m["matched_supply"] for m in matches)
     leftover = total_supply - total_matched
 
     data_payload = {
         "top_supply_districts": [
-            {"district": d["district"], "predicted_supply_2018": d["predicted_supply_2018"]}
+            {"district": d["district"], "predicted_supply": _latest_supply(d)}
             for d in top_districts
         ],
         "unmatched_districts": unmatched,
@@ -467,7 +476,7 @@ def _fallback_insights(data_payload: dict) -> list[str]:
         d = top[0]
         out.append(
             f"{d['district']} has the highest predicted supply at "
-            f"{d['predicted_supply_2018']:.0f} units."
+            f"{d['predicted_supply']:.0f} units."
         )
     leftover = data_payload.get("leftover_unmatched_units")
     total = data_payload.get("total_predicted_supply_units")
