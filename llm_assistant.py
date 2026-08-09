@@ -30,10 +30,13 @@ import difflib
 import json
 import os
 
+from matching import district_supply as _latest_supply  # single source of truth; no duplicate fallback logic
+
 from openai import OpenAI
 
 MODEL_ID = "gpt-4o-mini"
 MAX_TOOL_ITERATIONS = 5  # hard cap so a confused loop can't run away on cost
+MAX_HISTORY_TURNS = 20   # cap so a very long chat can't overflow the token limit
 
 # UI language codes -> English name for the system prompt. The assistant
 # always answers in the language the user picked in the dropdown, regardless
@@ -53,7 +56,19 @@ def _language_instruction(language: str) -> str:
         "you need data."
     )
 
-_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+# Initialised lazily on first use so the app still boots (and /health, /districts,
+# etc. still respond) when OPENAI_API_KEY is absent.  Any endpoint that actually
+# calls the LLM will fail at call-time with a clear AuthenticationError rather
+# than taking down the entire process at import time.
+_client: OpenAI | None = None
+
+
+def _get_client() -> OpenAI:
+    global _client
+    if _client is None:
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        _client = OpenAI(api_key=api_key)
+    return _client
 
 SYSTEM_PROMPT = (
     "You are AgriFlow's assistant, a biomass supply-chain tool. Use the "
@@ -188,15 +203,6 @@ def _get_unmatched_districts(_args, load_all_districts, get_matches, **_):
     return {"unmatched_districts": [d["district"] for d in districts if d["district"] not in matched_names]}
 
 
-def _latest_supply(d: dict) -> float:
-    """Latest available forecast — 2026 primary, 2024/2018 fallbacks."""
-    for key in ("predicted_supply_2026", "predicted_supply_2024", "predicted_supply_2018"):
-        value = d.get(key)
-        if value:
-            return float(value)
-    return 0.0
-
-
 def _get_top_supply_districts(args, load_all_districts, **_):
     n = int(args.get("n", 5))
     districts = sorted(load_all_districts(), key=lambda d: -_latest_supply(d))
@@ -280,58 +286,73 @@ def answer_question(
     Data-loading functions are passed in from api.py so this module never
     talks to the DB directly — one source of truth.
     """
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "system", "content": _language_instruction(language)},
-    ]
-    messages.extend(history or [])
-    messages.append({"role": "user", "content": question})
+    try:
+        client = _get_client()
 
-    functions_called = []
+        # Trim history to the most recent MAX_HISTORY_TURNS turns so a very long
+        # chat can't push the context over the model's token limit or inflate cost.
+        trimmed_history = (history or [])[-MAX_HISTORY_TURNS:]
 
-    for _ in range(MAX_TOOL_ITERATIONS):
-        response = _client.chat.completions.create(
-            model=MODEL_ID,
-            messages=messages,
-            tools=TOOLS,
-            tool_choice="auto",
-        )
-        choice = response.choices[0]
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": _language_instruction(language)},
+        ]
+        messages.extend(trimmed_history)
+        messages.append({"role": "user", "content": question})
 
-        if not choice.message.tool_calls:
-            return {
-                "answer": choice.message.content.strip(),
-                "supporting_data": {"functions_called": functions_called},
-            }
+        functions_called = []
 
-        messages.append(choice.message)
-        for call in choice.message.tool_calls:
-            fn_name = call.function.name
-            try:
-                args = json.loads(call.function.arguments or "{}")
-            except json.JSONDecodeError:
-                args = {}
+        for _ in range(MAX_TOOL_ITERATIONS):
+            response = client.chat.completions.create(
+                model=MODEL_ID,
+                messages=messages,
+                tools=TOOLS,
+                tool_choice="auto",
+            )
+            choice = response.choices[0]
 
-            handler = DISPATCH.get(fn_name)
-            if handler:
-                result = handler(
-                    args,
-                    load_all_districts=load_all_districts,
-                    load_all_plants=load_all_plants,
-                    get_plant_utilization=get_plant_utilization,
-                    get_matches=get_matches,
-                )
-            else:
-                result = {"error": f"Unknown function '{fn_name}'"}
-            functions_called.append({"function": fn_name, "args": args})
-            messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
+            if not choice.message.tool_calls:
+                return {
+                    "answer": choice.message.content.strip(),
+                    "supporting_data": {"functions_called": functions_called},
+                }
 
-    # Hit the iteration cap — force a final answer without offering more tools.
-    final = _client.chat.completions.create(model=MODEL_ID, messages=messages)
-    return {
-        "answer": final.choices[0].message.content.strip(),
-        "supporting_data": {"functions_called": functions_called, "note": "hit max tool iterations"},
-    }
+            messages.append(choice.message)
+            for call in choice.message.tool_calls:
+                fn_name = call.function.name
+                try:
+                    args = json.loads(call.function.arguments or "{}")
+                except json.JSONDecodeError:
+                    args = {}
+
+                handler = DISPATCH.get(fn_name)
+                if handler:
+                    result = handler(
+                        args,
+                        load_all_districts=load_all_districts,
+                        load_all_plants=load_all_plants,
+                        get_plant_utilization=get_plant_utilization,
+                        get_matches=get_matches,
+                    )
+                else:
+                    result = {"error": f"Unknown function '{fn_name}'"}
+                functions_called.append({"function": fn_name, "args": args})
+                messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
+
+        # Hit the iteration cap — force a final answer without offering more tools.
+        final = client.chat.completions.create(model=MODEL_ID, messages=messages)
+        return {
+            "answer": final.choices[0].message.content.strip(),
+            "supporting_data": {"functions_called": functions_called, "note": "hit max tool iterations"},
+        }
+
+    except Exception as e:  # noqa: BLE001
+        # Fail soft so the frontend always receives a structured response rather
+        # than a raw 500 traceback that could leak internal paths.
+        return {
+            "answer": "Sorry, I couldn't process your question right now. Please try again.",
+            "supporting_data": {"error": str(e)},
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -359,6 +380,7 @@ def generate_insights(
     get_plant_utilization,
     get_matches,
     get_impact=None,
+    get_economics=None,  # kept for forward-compat; not used in the fixed payload
 ) -> dict:
     """Generate 2-3 proactive insight bullets for dashboard load.
 
@@ -408,7 +430,7 @@ def generate_insights(
         }
 
     try:
-        response = _client.chat.completions.create(
+        response = _get_client().chat.completions.create(
             model=MODEL_ID,
             messages=[
                 {"role": "system", "content": INSIGHTS_SYSTEM_PROMPT},

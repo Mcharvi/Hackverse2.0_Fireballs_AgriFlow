@@ -31,6 +31,8 @@ ASSUMPTIONS:
   - 1 dataset biomass unit = 1 tonne.
 """
 
+from matching import district_supply as _district_supply  # single source of truth; no duplicate fallback logic
+
 CO2_PER_TONNE_RESIDUE = 1.35              # Ni et al. 2015, measured
 CAR_YEAR_TONNES_CO2 = 4.6                 # EPA, tonnes CO2e/vehicle/year
 TREE_SEEDLINGS_PER_TONNE_CO2 = 16.5       # EPA, seedlings grown 10 yrs / tonne CO2
@@ -38,7 +40,7 @@ INDIA_ANNUAL_RESIDUE_BURNING_CO2_TONNES = 141_150_000  # Jain et al. 2014, base 
 
 
 def compute_impact(districts: list[dict], matches: list[dict]) -> dict:
-    total_supply = sum(float(d["predicted_supply_2018"]) for d in districts)
+    total_supply = sum(_district_supply(d) for d in districts)
     matched = sum(m["matched_supply"] for m in matches)
     leftover = max(0.0, total_supply - matched)
 

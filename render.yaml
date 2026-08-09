@@ -5,5 +5,5 @@ services:
     name: agriflow-api
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python seed_agriflow_db.py
     startCommand: python -m uvicorn api:app --host 0.0.0.0 --port $PORT

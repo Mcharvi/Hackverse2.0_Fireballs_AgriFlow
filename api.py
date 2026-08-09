@@ -19,6 +19,7 @@ rename this file to main.py, or change that import to `from api import app`.
 
 import sqlite3
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,6 +47,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ---------------------------------------------------------------------------
+# Process-lifetime match cache — keyed on min_alloc.
+# compute_matches() is a pure function of districts + plants, which only
+# change when the DB is re-seeded (= a process restart on Render).  Cache
+# the result so the greedy pass runs once per process, not once per request.
+# ---------------------------------------------------------------------------
+_match_cache: dict[float, list[dict]] = {}
+
+
+def _invalidate_match_cache() -> None:
+    """Call this if the DB is ever mutated at runtime (not currently needed,
+    but makes the cache safe to keep when a write path is added later)."""
+    _match_cache.clear()
 
 
 # ---------------------------------------------------------------------------
@@ -110,8 +126,7 @@ def load_crop_composition() -> dict[str, list[dict]]:
 
 
 def get_matches(min_alloc: float = 2000.0) -> list[dict]:
-    """Live matches, computed with the real economic-lot-threshold logic
-    from matching.py — not a separate implementation.
+    """Cached matches — computed once per process lifetime per min_alloc value.
 
     matching.py returns {plant_id, allocated_quantity, ...}. The frontend
     (frontend/src/App.jsx) expects {matched_plant_id, matched_supply, ...}.
@@ -120,20 +135,22 @@ def get_matches(min_alloc: float = 2000.0) -> list[dict]:
     that reads it directly (e.g. the `matches` table via matching.py's
     own --dry-run / DB write path).
     """
-    districts = load_all_districts()
-    plants = load_all_plants()
-    raw = compute_matches(districts, plants, min_alloc=min_alloc)
-    return [
-        {
-            "district": m["district"],
-            "matched_plant_id": m["plant_id"],
-            "matched_supply": m["allocated_quantity"],
-            "distance_km": m["distance_km"],
-            "pickup_order": m["pickup_order"],
-            "status": m["status"],
-        }
-        for m in raw
-    ]
+    if min_alloc not in _match_cache:
+        districts = load_all_districts()
+        plants = load_all_plants()
+        raw = compute_matches(districts, plants, min_alloc=min_alloc)
+        _match_cache[min_alloc] = [
+            {
+                "district": m["district"],
+                "matched_plant_id": m["plant_id"],
+                "matched_supply": m["allocated_quantity"],
+                "distance_km": m["distance_km"],
+                "pickup_order": m["pickup_order"],
+                "status": m["status"],
+            }
+            for m in raw
+        ]
+    return _match_cache[min_alloc]
 
 
 def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
@@ -142,19 +159,23 @@ def get_plant_utilization(min_alloc: float = 2000.0) -> list[dict]:
 
     used = {p["plant_id"]: 0.0 for p in plants}
     for m in matches:
-        used[m["matched_plant_id"]] += m["matched_supply"]
+        # Skip any match that references a plant_id no longer in the plants table
+        # (could happen if the DB was re-seeded after matches were written).
+        if m["matched_plant_id"] in used:
+            used[m["matched_plant_id"]] += m["matched_supply"]
 
     result = []
     for p in plants:
         util = used[p["plant_id"]]
+        capacity = p["annual_capacity"] or 0
         result.append({
             **p,
             "current_utilization": round(util, 1),
-            "utilization_pct": round(100 * util / p["annual_capacity"], 1),
+            "utilization_pct": round(100 * util / capacity, 1) if capacity else 0.0,
         })
     return result
 
-#co2 avoided metric
+# CO2-avoided metric
 def get_impact() -> dict:
     districts = load_all_districts()
     matches = get_matches()
@@ -249,7 +270,7 @@ def get_matches_route():
 # against the DB -> model phrases the answer in natural language.
 # ---------------------------------------------------------------------------
 class ChatMessage(BaseModel):
-    role: str  # "user" or "assistant"
+    role: Literal["user", "assistant"]  # reject any other value at the request boundary
     content: str
 
 
@@ -269,7 +290,7 @@ def assistant_query(payload: AssistantQuery):
         load_all_plants=load_all_plants,
         get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
-        get_impact=get_impact
+        get_impact=get_impact,
     )
 
 
