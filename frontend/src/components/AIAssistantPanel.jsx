@@ -12,7 +12,7 @@ import { LANGUAGES } from "../translations.js";
 const SUGGESTIONS = [
   "What is the nearest plant from Morbi?",
   "Which district produces the most residue?",
-  "Is it worth collecting from Bhavnagar?",
+  "Which districts still have no matched plant?",
   "Which plants still have spare capacity?",
 ];
 

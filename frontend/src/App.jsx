@@ -87,6 +87,11 @@ export default function App() {
   const [insights, setInsights] = useState([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
 
+  // Environmental impact (CO2 avoided) — /impact. Loads in its own effect
+  // with its own loading state so a slow/failing call never blocks the map.
+  const [impact, setImpact] = useState(null);
+  const [impactLoading, setImpactLoading] = useState(true);
+
   // Plant siting simulator state. simMode = user is in "click the map to
   // place a plant" mode. simMarker = the placed {lat, lng}, null until they
   // click. simResult = last /simulate/plant response, cleared whenever the
@@ -127,6 +132,15 @@ export default function App() {
       .then((res) => setInsights(res.insights || []))
       .catch(() => setInsights([])) // fail silent — insights strip just won't render
       .finally(() => setInsightsLoading(false));
+  }, []);
+
+  // Impact loads independently, same fail-silent pattern.
+  useEffect(() => {
+    api
+      .impact()
+      .then(setImpact)
+      .catch(() => setImpact(null))
+      .finally(() => setImpactLoading(false));
   }, []);
 
   // Leaflet measures its container once, at L.map() construction time, and
@@ -465,6 +479,8 @@ export default function App() {
 
       <SupplyExplorer districts={districts} plants={plants} matches={matches} />
 
+      <ImpactSection impact={impact} loading={impactLoading} />
+
       {aiOpen && (
         <AIAssistantPanel
           chat={chat}
@@ -637,6 +653,60 @@ function PlantCard({ p, onClose }) {
         Close
       </button>
     </div>
+  );
+}
+
+// Environmental impact — CO2 avoided by matching residue instead of burning.
+function ImpactSection({ impact, loading }) {
+  if (loading || !impact) return null;
+  const money = (n) =>
+    (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+  return (
+    <section className="impact">
+      <div className="impact-heading">
+        <h2>Environmental impact</h2>
+        <p>
+          CO₂ avoided by matching leftover residue instead of open burning, at
+          1.35 tonnes CO₂ / tonne burned (Ni et al. 2015, measured combustion
+          factor).
+        </p>
+      </div>
+
+      <div className="impact-stats">
+        <div className="impact-stat">
+          <span className="impact-stat-label">Leftover residue</span>
+          <b>{money(impact.leftover_tonnes)}</b>
+          <span className="impact-unit">tonnes</span>
+        </div>
+        <div className="impact-stat">
+          <span className="impact-stat-label">CO₂ avoided</span>
+          <b className="impact-good">{money(impact.co2_avoided_tonnes)}</b>
+          <span className="impact-unit">tonnes</span>
+        </div>
+        <div className="impact-stat">
+          <span className="impact-stat-label">≈ Cars off the road</span>
+          <b>{money(impact.equivalent_cars_off_road_for_a_year)}</b>
+          <span className="impact-unit">for a year</span>
+        </div>
+        <div className="impact-stat">
+          <span className="impact-stat-label">≈ Tree seedlings</span>
+          <b>{money(impact.equivalent_tree_seedlings_grown_10yr)}</b>
+          <span className="impact-unit">grown 10 yrs</span>
+        </div>
+        <div className="impact-stat">
+          <span className="impact-stat-label">Share of India's burning CO₂</span>
+          <b>{impact.pct_of_india_annual_residue_burning_co2}%</b>
+          <span className="impact-unit">of national total</span>
+        </div>
+      </div>
+
+      <p className="impact-footnote">
+        *National reference: 141.15 Mt CO₂ from crop residue burning across
+        India, base year 2008–09 (Jain et al., Aerosol and Air Quality
+        Research, 2014).
+      </p>
+    </section>
   );
 }
 

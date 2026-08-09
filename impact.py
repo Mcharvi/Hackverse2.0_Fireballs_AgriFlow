@@ -1,8 +1,8 @@
 """impact.py — CO2-avoided impact metric.
 
 Converts "leftover supply that would otherwise be burned" into an
-environmental impact number. Mirrors economics.py's structure: pure
-function, demo-documented assumptions, no side effects.
+environmental impact number. Pure function, demo-documented
+assumptions, no side effects.
 
 SOURCES (state these if asked):
   - CO2_PER_TONNE_RESIDUE: measured combustion emission factor from

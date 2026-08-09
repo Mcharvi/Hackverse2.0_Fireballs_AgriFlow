@@ -25,7 +25,7 @@ const en = {
   micBlocked: "Microphone access was blocked — allow it in your browser and try again.",
   suggestion1: "What is the nearest plant from Morbi?",
   suggestion2: "Which district produces the most residue?",
-  suggestion3: "Is it worth collecting from Bhavnagar?",
+  suggestion3: "Which districts still have no matched plant?",
   suggestion4: "Which plants still have spare capacity?",
 
   // Explorer section
@@ -79,7 +79,7 @@ const hi = {
   micBlocked: "माइक्रोफ़ोन एक्सेस ब्लॉक था — ब्राउज़र में अनुमति दें और फिर कोशिश करें।",
   suggestion1: "मोरबी से सबसे नज़दीकी प्लांट कौन सा है?",
   suggestion2: "किस जिले में सबसे ज़्यादा अवशेष उत्पादन होता है?",
-  suggestion3: "क्या भावनगर से संग्रह करना लाभदायक है?",
+  suggestion3: "किन जिलों का कोई मैचेड प्लांट नहीं है?",
   suggestion4: "किन प्लांट्स में अभी क्षमता बची है?",
 
   explorerHeading: "आंकड़े देखें",
@@ -131,7 +131,7 @@ const gu = {
   micBlocked: "માઇક્રોફોન એક્સેસ બ્લોક હતી — બ્રાઉઝરમાં પરવાનગી આપીને ફરી પ્રયત્ન કરો.",
   suggestion1: "મોરબીથી સૌથી નજીકનો પ્લાન્ટ કયો છે?",
   suggestion2: "કયા જિલ્લામાં સૌથી વધુ અવશેષ ઉત્પાદન થાય છે?",
-  suggestion3: "શું ભાવનગરથી સંગ્રહ કરવો નફાકારક છે?",
+  suggestion3: "કયા જિલ્લાઓનો કોઈ મેચ્ડ પ્લાન્ટ નથી?",
   suggestion4: "કયા પ્લાન્ટમાં હજુ ક્ષમતા બાકી છે?",
 
   explorerHeading: "આંકડા જુઓ",
