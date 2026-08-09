@@ -4,7 +4,7 @@ import { useLanguage } from "../LanguageContext.jsx";
 
 const fmt = (n) => (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
 
-const TIER_COLORS = { High: "#1e5631", Medium: "#4caf50", Low: "#c9c9c9" };
+const TIER_COLORS = { High: "#d32f2f", Medium: "#f2c94c", Low: "#1e5631" };
 
 export default function SupplyExplorer({ districts, plants, matches }) {
   const { t } = useLanguage();

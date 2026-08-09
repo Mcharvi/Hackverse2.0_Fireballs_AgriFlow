@@ -10,8 +10,10 @@ import AIAssistantPanel from "./components/AIAssistantPanel.jsx";
 import SupplyExplorer from "./components/SupplyExplorer.jsx";
 
 // Simple 3-color supply-tier + map palette (matches styles.css tokens).
-const TIER_COLORS = { High: "#1e5631", Medium: "#4caf50", Low: "#c9c9c9" };
-const PLANT_COLOR = "#1e5631";
+// High = red, Medium = yellow, Low = green — reads as a risk/urgency heatmap.
+const TIER_COLORS = { High: "#d32f2f", Medium: "#f2c94c", Low: "#1e5631" };
+const PLANT_COLOR = "#2563eb";
+const ROUTE_COLOR = "#1e5631";
 const SIM_COLOR = "#4caf50";
 
 function fmt(n) {
@@ -84,7 +86,7 @@ export default function App() {
   // Proactive insight bullets — fetched once on load, independent of the
   // main dashboard data (see api.insights()). Kept as its own loading/error
   // state so a slow or failed insights call never blocks or breaks the map.
-  const [insights, setInsights] = useState([]);
+  const [insightsData, setInsightsData] = useState(null);
   const [insightsLoading, setInsightsLoading] = useState(true);
 
   // Environmental impact (CO2 avoided) — /impact. Loads in its own effect
@@ -127,10 +129,11 @@ export default function App() {
   // on purpose — insights are a nice-to-have, and if this call is slow or
   // errors out, the map/panel/chat should still work fully.
   useEffect(() => {
+    setInsightsLoading(true);
     api
       .insights()
-      .then((res) => setInsights(res.insights || []))
-      .catch(() => setInsights([])) // fail silent — insights strip just won't render
+      .then(setInsightsData)
+      .catch(() => setInsightsData(null)) // fail silent — insights just won't render
       .finally(() => setInsightsLoading(false));
   }, []);
 
@@ -210,7 +213,7 @@ export default function App() {
       L.circleMarker([p.latitude, p.longitude], {
         radius: 9,
         color: PLANT_COLOR,
-        fillColor: "#4caf50",
+        fillColor: PLANT_COLOR,
         fillOpacity: 1,
         weight: 2,
       })
@@ -229,7 +232,7 @@ export default function App() {
       const ppos = plantPos[m.matched_plant_id];
       if (d && ppos) {
         L.polyline([[d.latitude, d.longitude], ppos], {
-          color: PLANT_COLOR,
+          color: ROUTE_COLOR,
           weight: 2,
           opacity: 0.55,
         })
@@ -413,20 +416,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Proactive insights strip — only renders once bullets arrive, and
-            disappears entirely (not even a placeholder) if the call fails,
-            so a slow/broken insights endpoint never leaves an empty box. */}
-        {!insightsLoading && insights.length > 0 && (
-          <div className="insights-strip">
-            <span className="insights-label">AI insights</span>
-            <ul>
-              {insights.map((text, i) => (
-                <li key={i}>{text}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         <div className="layout">
           <div className="map-wrap">
             <div ref={mapElRef} className="map" />
@@ -458,16 +447,36 @@ export default function App() {
               )
             ) : (
               <div className="hint">
-                <h3>Click a district or plant</h3>
-                <p>
-                  Districts are colored by supply tier:{" "}
-                  <span className="swatch" style={{ background: TIER_COLORS.High }} />
-                  High
-                  <span className="swatch" style={{ background: TIER_COLORS.Medium }} />
-                  Medium
-                  <span className="swatch" style={{ background: TIER_COLORS.Low }} />
-                  Low. Green dots are plants; green lines show today's matched routes.
+                <div className="hint-header">
+                  <span className="hint-icon">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z" />
+                      <path d="M9 7v13" />
+                      <path d="M15 4v13" />
+                    </svg>
+                  </span>
+                  <h3>Click a district or plant</h3>
+                </div>
+                <p>Districts are colored by supply tier:</p>
+                <div className="hint-legend">
+                  <span className="hint-legend-item">
+                    <span className="hint-swatch" style={{ background: TIER_COLORS.High }} />
+                    High
+                  </span>
+                  <span className="hint-legend-item">
+                    <span className="hint-swatch" style={{ background: TIER_COLORS.Medium }} />
+                    Medium
+                  </span>
+                  <span className="hint-legend-item">
+                    <span className="hint-swatch" style={{ background: TIER_COLORS.Low }} />
+                    Low
+                  </span>
+                </div>
+                <p className="hint-routes">
+                  <span className="hint-plant-dot" aria-hidden="true" />
+                  Blue dots are plants; green lines show today's matched routes.
                 </p>
+                <hr className="hint-divider" />
                 <p className="units-note">
                   All quantities are dimensionless dataset biomass units (not tonnes).
                 </p>
@@ -475,11 +484,13 @@ export default function App() {
             )}
           </aside>
         </div>
+
+        <InsightsSection data={insightsData} loading={insightsLoading} />
       </section>
 
-      <SupplyExplorer districts={districts} plants={plants} matches={matches} />
-
       <ImpactSection impact={impact} loading={impactLoading} />
+
+      <SupplyExplorer districts={districts} plants={plants} matches={matches} />
 
       {aiOpen && (
         <AIAssistantPanel
@@ -665,39 +676,86 @@ function ImpactSection({ impact, loading }) {
   return (
     <section className="impact">
       <div className="impact-heading">
-        <h2>Environmental impact</h2>
-        <p>
-          CO₂ avoided by matching leftover residue instead of open burning, at
-          1.35 tonnes CO₂ / tonne burned (Ni et al. 2015, measured combustion
-          factor).
-        </p>
+        <div>
+          <h2>Environmental impact</h2>
+          <p>
+            CO₂ avoided by matching leftover residue instead of open burning,
+            at 1.35 t CO₂ / t burned (Ni et al. 2015, measured combustion
+            factor).
+          </p>
+        </div>
       </div>
 
       <div className="impact-stats">
         <div className="impact-stat">
-          <span className="impact-stat-label">Leftover residue</span>
-          <b>{money(impact.leftover_tonnes)}</b>
-          <span className="impact-unit">tonnes</span>
+          <span className="impact-card-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+            </svg>
+          </span>
+          <div className="impact-stat-body">
+            <span className="impact-stat-label">Leftover residue</span>
+            <b>{money(impact.leftover_tonnes)}</b>
+            <span className="impact-unit">tonnes</span>
+          </div>
         </div>
         <div className="impact-stat">
-          <span className="impact-stat-label">CO₂ avoided</span>
-          <b className="impact-good">{money(impact.co2_avoided_tonnes)}</b>
-          <span className="impact-unit">tonnes</span>
+          <span className="impact-card-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+              <path d="M8 15h8" />
+              <path d="m9 18-1 2" />
+              <path d="m15 18 1 2" />
+            </svg>
+          </span>
+          <div className="impact-stat-body">
+            <span className="impact-stat-label">CO₂ avoided</span>
+            <b className="impact-good">{money(impact.co2_avoided_tonnes)}</b>
+            <span className="impact-unit">tonnes</span>
+          </div>
         </div>
         <div className="impact-stat">
-          <span className="impact-stat-label">≈ Cars off the road</span>
-          <b>{money(impact.equivalent_cars_off_road_for_a_year)}</b>
-          <span className="impact-unit">for a year</span>
+          <span className="impact-card-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h6l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2Z" />
+              <circle cx="7.5" cy="15.5" r="1" />
+              <circle cx="16.5" cy="15.5" r="1" />
+            </svg>
+          </span>
+          <div className="impact-stat-body">
+            <span className="impact-stat-label">≈ Cars off the road</span>
+            <b>{money(impact.equivalent_cars_off_road_for_a_year)}</b>
+            <span className="impact-unit">for a year</span>
+          </div>
         </div>
         <div className="impact-stat">
-          <span className="impact-stat-label">≈ Tree seedlings</span>
-          <b>{money(impact.equivalent_tree_seedlings_grown_10yr)}</b>
-          <span className="impact-unit">grown 10 yrs</span>
+          <span className="impact-card-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 22v-7" />
+              <path d="M12 15c-4 0-6-2.5-6-6V3c3 0 5 1.5 6 4 1-2.5 3-4 6-4v6c0 3.5-2 6-6 6Z" />
+              <path d="M7 22h10" />
+            </svg>
+          </span>
+          <div className="impact-stat-body">
+            <span className="impact-stat-label">≈ Tree seedlings</span>
+            <b>{money(impact.equivalent_tree_seedlings_grown_10yr)}</b>
+            <span className="impact-unit">grown 10 yrs</span>
+          </div>
         </div>
         <div className="impact-stat">
-          <span className="impact-stat-label">Share of India's burning CO₂</span>
-          <b>{impact.pct_of_india_annual_residue_burning_co2}%</b>
-          <span className="impact-unit">of national total</span>
+          <span className="impact-card-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+          </span>
+          <div className="impact-stat-body">
+            <span className="impact-stat-label">Share of India's burning CO₂</span>
+            <b>{impact.pct_of_india_annual_residue_burning_co2}%</b>
+            <span className="impact-unit">of national total</span>
+          </div>
         </div>
       </div>
 
@@ -706,6 +764,95 @@ function ImpactSection({ impact, loading }) {
         India, base year 2008–09 (Jain et al., Aerosol and Air Quality
         Research, 2014).
       </p>
+    </section>
+  );
+}
+
+// AI Insights — structured forecast cards. Numbers come straight from the
+// /assistant/insights supporting_data payload (same figures the explorer
+// and impact cards show), so the cards never drift from the rest of the UI.
+function InsightsSection({ data, loading }) {
+  if (loading || !data) return null;
+  const sd = data.supporting_data || {};
+
+  const top = sd.top_supply_districts || [];
+  const unmatched = sd.unmatched_districts || [];
+  const util = sd.plant_utilization_ascending || [];
+
+  const fmt = (n) =>
+    (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
+  const totalSupply = sd.total_predicted_supply_units;
+  const leftover = sd.leftover_unmatched_units;
+  const maxUtil = util.length
+    ? Math.max(...util.map((p) => p.utilization_pct ?? 0))
+    : 0;
+
+  const cards = [
+    {
+      key: "supply",
+      icon: (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 3v18h18" />
+          <path d="m7 14 4-4 3 3 5-6" />
+        </svg>
+      ),
+      label: "Predicted supply (2026)",
+      value: fmt(totalSupply),
+      unit: "units",
+      desc: top.length
+        ? `${top[0].district} leads predicted supply at ${fmt(top[0].predicted_supply)} units, closely followed by ${top[1]?.district ?? "the next district"} at ${fmt(top[1]?.predicted_supply)} units.`
+        : "Predicted supply across all districts.",
+    },
+    {
+      key: "unmatched",
+      icon: (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+      ),
+      label: "Unmatched supply",
+      value: fmt(leftover),
+      unit: "units",
+      desc: `Total unmatched supply stands at ${fmt(leftover)} units across ${unmatched.length} districts, indicating gaps in the supply chain.`,
+    },
+    {
+      key: "utilization",
+      icon: (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 20h20" />
+          <path d="M4 20V9l5 3V9l5 3V9l5 3v8" />
+        </svg>
+      ),
+      label: "Plant utilization",
+      value: `${maxUtil}%`,
+      unit: "",
+      desc: `All ${util.length} plants operate at full capacity, achieving ${maxUtil}% utilization.`,
+    },
+  ];
+
+  return (
+    <section className="ai-insights">
+      <div className="ai-insights-head">
+        <div>
+          <h2>AI Insights</h2>
+          <p>Analysis of supply, matching, and plant capacity.</p>
+        </div>
+      </div>
+
+      <div className="ai-insights-cards">
+        {cards.map((c) => (
+          <div className="ai-card" key={c.key}>
+            <span className="ai-card-icon">{c.icon}</span>
+            <span className="ai-card-label">{c.label}</span>
+            <b className="ai-card-value">
+              {c.value}
+              {c.unit && <span className="ai-card-unit"> {c.unit}</span>}
+            </b>
+            <p className="ai-card-desc">{c.desc}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
