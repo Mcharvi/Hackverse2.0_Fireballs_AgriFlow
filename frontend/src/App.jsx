@@ -473,7 +473,11 @@ export default function App() {
                   </span>
                 </div>
                 <p className="hint-routes">
-                  <span className="hint-plant-dot" aria-hidden="true" />
+                  <span
+                    className="hint-plant-dot"
+                    style={{ "--plant-color": PLANT_COLOR }}
+                    aria-hidden="true"
+                  />
                   Blue dots are plants; green lines show today's matched routes.
                 </p>
                 <hr className="hint-divider" />

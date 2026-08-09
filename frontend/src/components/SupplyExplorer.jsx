@@ -47,7 +47,9 @@ export default function SupplyExplorer({ districts, plants, matches }) {
 
       <div className="explorer-body">
         {active === "supply" && <SupplyTab districts={districts} total={totalSupply} t={t} />}
-        {active === "matched" && <MatchedTab matches={matches} total={matchedUnits} t={t} />}
+        {active === "matched" && (
+          <MatchedTab matches={matches} plants={plants} total={matchedUnits} t={t} />
+        )}
         {active === "plants" && <PlantsTab plants={plants} t={t} />}
         {active === "leftover" && (
           <LeftoverTab
@@ -109,7 +111,8 @@ function SupplyTab({ districts, total, t }) {
   );
 }
 
-function MatchedTab({ matches, total, t }) {
+function MatchedTab({ matches, plants, total, t }) {
+  const plantName = Object.fromEntries(plants.map((p) => [p.plant_id, p.plant_name]));
   const rows = [...matches].sort((a, b) =>
     a.matched_plant_id === b.matched_plant_id
       ? (a.pickup_order || 0) - (b.pickup_order || 0)
@@ -133,7 +136,11 @@ function MatchedTab({ matches, total, t }) {
           {rows.map((m, i) => (
             <tr key={i}>
               <td><b>{m.district}</b></td>
-              <td><span className="explorer-arrow">→</span> {m.matched_plant_id}</td>
+              <td>
+                <span className="explorer-arrow">→</span>{" "}
+                {plantName[m.matched_plant_id] || m.matched_plant_id}{" "}
+                <span className="explorer-plant-id">({m.matched_plant_id})</span>
+              </td>
               <td>{fmt(m.matched_supply)} units</td>
               <td>{m.distance_km} km</td>
               <td>{m.pickup_order}</td>
