@@ -1,5 +1,6 @@
 //this is app.jsx
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "./LanguageContext.jsx";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { api } from "./api.js";
@@ -18,6 +19,7 @@ function fmt(n) {
 }
 
 export default function App() {
+  const { t, lang } = useLanguage();
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
   const layersRef = useRef({ districts: null, plants: null, routes: null });
@@ -304,6 +306,11 @@ export default function App() {
     setSimRunning(false);
   }
 
+  function newChat() {
+    setChat([]);
+    setQuestion("");
+  }
+
   async function ask() {
     const q = question.trim();
     if (!q || busy) return;
@@ -317,7 +324,7 @@ export default function App() {
 
     setChat((c) => [...c, { role: "user", text: q }]);
     try {
-      const { answer } = await api.ask(q, history);
+      const { answer } = await api.ask(q, history, lang);
       setChat((c) => [...c, { role: "assistant", text: answer }]);
     } catch (e) {
       setChat((c) => [...c, { role: "assistant", text: `Error: ${e}` }]);
@@ -437,7 +444,14 @@ export default function App() {
           setQuestion={setQuestion}
           busy={busy}
           onAsk={ask}
+          onNewChat={newChat}
           onClose={() => setAiOpen(false)}
+          suggestions={[
+            t.suggestion1,
+            t.suggestion2,
+            t.suggestion3,
+            t.suggestion4,
+          ]}
         />
       )}
     </div>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../LanguageContext.jsx";
+import LanguageDropdown from "./LanguageDropdown.jsx";
 
 export default function Navbar({
   onSimulateClick,
@@ -7,6 +9,7 @@ export default function Navbar({
   simActive,
   aiOpen,
 }) {
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -32,24 +35,19 @@ export default function Navbar({
         </span>
 
         <span className="nav-brand-text">
-          Agri<span>Flow</span>
+          Agri<em>Flow</em>
         </span>
       </button>
 
       <div className="nav-links">
-        <button
-          className={`nav-link ${!simActive && !aiOpen ? "active" : ""}`}
-          onClick={onDashboardClick}
-        >
-          Dashboard
-        </button>
+        <LanguageDropdown />
 
         <button
           className={`nav-link ${simActive ? "active" : ""}`}
           onClick={onSimulateClick}
         >
           <span className="nav-icon">📍</span>
-          <span className="nav-link-label">Simulate new plant</span>
+          <span className="nav-link-label">{t.simulateNewPlant}</span>
         </button>
 
         <button
@@ -57,7 +55,7 @@ export default function Navbar({
           onClick={onAskClick}
         >
           <span className="nav-icon">💬</span>
-          <span className="nav-link-label">Talk to AI assistant</span>
+          <span className="nav-link-label">{t.talkToAssistant}</span>
         </button>
       </div>
     </nav>
