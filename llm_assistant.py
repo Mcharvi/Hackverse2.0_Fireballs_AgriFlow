@@ -134,6 +134,14 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "get_unmatched_supply",
+            "description": "Get total predicted supply, the amount matched to plants, and the leftover unmatched supply in units, plus the districts with no matched plant. Use this for any 'how much supply is left over / unmatched' question.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_top_supply_districts",
             "description": "Get the N districts with the highest predicted supply.",
             "parameters": {
@@ -226,6 +234,47 @@ TOOLS = [
 
 
 # ---------------------------------------------------------------------------
+# Shared data helpers — curated district rows and the supply overview used by
+# both the chat tools and the proactive insights, so every number comes from
+# one place (matching.district_supply, the 2026-primary forecast).
+# ---------------------------------------------------------------------------
+def _curate_district(d: dict) -> dict:
+    """Return a district row with a single current `predicted_supply` and
+    none of the historical forecast columns, so the model can never quote
+    the old 2018/2024 numbers instead of the latest forecast."""
+    return {
+        "district": d["district"],
+        "latitude": d.get("latitude"),
+        "longitude": d.get("longitude"),
+        "supply_tier": d.get("supply_tier"),
+        "confidence_score": d.get("confidence_score_2026") or d.get("confidence_score_2024"),
+        "confidence_label": d.get("confidence_label_2026") or d.get("confidence_label_2024"),
+        "residue_type": d.get("residue_type"),
+        "harvest_window": d.get("harvest_window"),
+        "top_crop": d.get("top_crop"),
+        "crop_mix": d.get("crop_mix"),
+        "predicted_supply": round(_latest_supply(d), 3),
+    }
+
+
+def _supply_overview(load_all_districts, get_matches) -> dict:
+    """The one computed answer to 'how much is unmatched': total supply,
+    matched amount, leftover, and unmatched district names. Same numbers the
+    AI Insights cards show, so the chat can never drift from the dashboard."""
+    districts = load_all_districts()
+    matches = get_matches()
+    matched_names = {m["district"] for m in matches}
+    total_supply = sum(_latest_supply(d) for d in districts)
+    total_matched = sum(m["matched_supply"] for m in matches)
+    return {
+        "total_predicted_supply_units": round(total_supply, 1),
+        "total_matched_units": round(total_matched, 1),
+        "leftover_unmatched_units": round(total_supply - total_matched, 1),
+        "unmatched_districts": [d["district"] for d in districts if d["district"] not in matched_names],
+    }
+
+
+# ---------------------------------------------------------------------------
 # Fuzzy matching helper — tolerates typos/misspellings on district & plant
 # names instead of hard-failing on anything that isn't an exact match.
 # ---------------------------------------------------------------------------
@@ -255,7 +304,10 @@ def _get_district_supply(args, load_all_districts, **_):
     if not matched:
         return {"error": f"No district matching '{query}' found."}
     d = next(x for x in districts if x["district"] == matched)
-    return {**d, "note": f"Interpreted '{query}' as '{matched}'."} if was_fuzzy else d
+    out = _curate_district(d)
+    if was_fuzzy:
+        out["note"] = f"Interpreted '{query}' as '{matched}'."
+    return out
 
 
 def _get_underused_plants(_args, get_plant_utilization, **_):
@@ -271,11 +323,15 @@ def _get_unmatched_districts(_args, load_all_districts, get_matches, **_):
 
 def _latest_forecast_year(d: dict) -> int | None:
     """The year of the newest forecast key actually present on a district row
-    (mirrors matching.district_supply's fallback order)."""
-    for key in ("predicted_supply_2026", "predicted_supply_2024", "predicted_supply_2018"):
+    (mirrors matching.district_supply's fallback order — 2026, then 2024)."""
+    for key in ("predicted_supply_2026", "predicted_supply_2024"):
         if d.get(key) is not None:
             return int(key[-4:])
     return None
+
+
+def _get_unmatched_supply(_args, load_all_districts, get_matches, **_):
+    return _supply_overview(load_all_districts, get_matches)
 
 
 def _get_top_supply_districts(args, load_all_districts, **_):
@@ -283,7 +339,7 @@ def _get_top_supply_districts(args, load_all_districts, **_):
     districts = sorted(load_all_districts(), key=lambda d: -_latest_supply(d))
     top = districts[:n]
     # Trim each row to the latest forecast so the model can't pick an older
-    # year (2018/2024) when the user didn't ask for one — the ambiguity that
+    # year (2024) when the user didn't ask for one — the ambiguity that
     # previously made "highest supply" answers report different years per run.
     trimmed = []
     for d in top:
@@ -294,7 +350,7 @@ def _get_top_supply_districts(args, load_all_districts, **_):
                 "predicted_supply_units": round(_latest_supply(d), 1),
                 "predicted_supply_by_year": {
                     str(y): round(float(d[k]), 1)
-                    for y, k in ((2018, "predicted_supply_2018"), (2024, "predicted_supply_2024"),
+                    for y, k in ((2024, "predicted_supply_2024"),
                                  (2025, "predicted_supply_2025"), (2026, "predicted_supply_2026"))
                     if d.get(k) is not None
                 },
@@ -486,7 +542,9 @@ DISPATCH = {
     "get_district_supply": _get_district_supply,
     "get_underused_plants": _get_underused_plants,
     "get_unmatched_districts": _get_unmatched_districts,
-    "get_top_supply_districts": _get_top_supply_districts,    "get_nearest_plant": _get_nearest_plant,
+    "get_unmatched_supply": _get_unmatched_supply,
+    "get_top_supply_districts": _get_top_supply_districts,
+    "get_nearest_plant": _get_nearest_plant,
     "get_plant_details": _get_plant_details,
     "get_district_matches": _get_district_matches,
     "get_haul_stats": _get_haul_stats,
@@ -624,33 +682,23 @@ def generate_insights(
     """
     districts = load_all_districts()
     plants = get_plant_utilization()
-    matches = get_matches()
-
-    matched_names = {m["district"] for m in matches}
-    unmatched = [d["district"] for d in districts if d["district"] not in matched_names]
+    overview = _supply_overview(load_all_districts, get_matches)
 
     impact = get_impact() if get_impact is not None else None
 
     top_districts = sorted(districts, key=lambda d: -_latest_supply(d))[:5]
     plants_by_util = sorted(plants, key=lambda p: p["utilization_pct"])
 
-    total_supply = sum(_latest_supply(d) for d in districts)
-    total_matched = sum(m["matched_supply"] for m in matches)
-    leftover = total_supply - total_matched
-
     data_payload = {
+        **overview,
         "top_supply_districts": [
             {"district": d["district"], "predicted_supply": _latest_supply(d)}
             for d in top_districts
         ],
-        "unmatched_districts": unmatched,
         "plant_utilization_ascending": [
             {"plant_name": p["plant_name"], "utilization_pct": p["utilization_pct"]}
             for p in plants_by_util
         ],
-        "total_predicted_supply_units": round(total_supply, 1),
-        "total_matched_units": round(total_matched, 1),
-        "leftover_unmatched_units": round(leftover, 1),
     }
     if impact:
         data_payload["impact"] = {

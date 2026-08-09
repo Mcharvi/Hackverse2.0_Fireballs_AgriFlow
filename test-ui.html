@@ -193,7 +193,7 @@ async function loadDistricts() {
     <tr>
       <td>${d.district}</td>
       <td><span class="tier ${d.supply_tier}">${d.supply_tier}</span></td>
-      <td>${Math.round(d.predicted_supply_2018).toLocaleString()}</td>
+      <td>${Math.round(d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? 0).toLocaleString()}</td>
       <td>${d.residue_type}</td>
       <td>${d.harvest_window}</td>
     </tr>

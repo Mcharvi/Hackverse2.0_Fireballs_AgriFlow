@@ -277,158 +277,6 @@ body {
 
 
 /* ==========================================================================
-   Language dropdown — globe + language + chevron trigger, check-marked menu
-   ========================================================================== */
-
-.lang-dd {
-  position: relative;
-}
-
-.lang-dd-trigger {
-  height: 46px;
-
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-
-  color: rgba(255, 255, 255, 0.9);
-
-  background: transparent;
-
-  border: 1px solid transparent;
-  border-radius: 15px;
-
-  padding: 0 14px;
-
-  cursor: pointer;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease,
-    transform 0.15s ease;
-}
-
-.lang-dd-trigger svg {
-  flex-shrink: 0;
-}
-
-.lang-dd-trigger svg:last-child {
-  transition: transform 0.18s ease;
-}
-
-.lang-dd.is-open .lang-dd-trigger svg:last-child {
-  transform: rotate(180deg);
-}
-
-.lang-dd-trigger:hover {
-  color: #ffffff;
-
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.22);
-
-  transform: translateY(-1px);
-}
-
-.lang-dd.is-open .lang-dd-trigger {
-  color: #ffffff;
-
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.navbar.scrolled .lang-dd-trigger {
-  color: var(--green);
-}
-
-.navbar.scrolled .lang-dd-trigger:hover,
-.navbar.scrolled .lang-dd.is-open .lang-dd-trigger {
-  color: var(--green);
-  background: rgba(23, 59, 39, 0.08);
-  border-color: rgba(23, 59, 39, 0.12);
-}
-
-.lang-dd-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  z-index: 70;
-
-  min-width: 168px;
-
-  background: var(--panel);
-  border: 1px solid var(--border);
-
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
-
-  padding: 6px;
-
-  animation: lang-dd-in 0.14s ease;
-}
-
-@keyframes lang-dd-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.lang-dd-item {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 600;
-
-  color: var(--text);
-  background: transparent;
-  border: none;
-
-  padding: 9px 12px;
-
-  cursor: pointer;
-
-  text-align: left;
-  white-space: nowrap;
-
-  transition: background 0.12s ease, color 0.12s ease;
-}
-
-.lang-dd-item:hover {
-  background: var(--bg-soft);
-}
-
-.lang-dd-item.is-active {
-  color: var(--green);
-  background: rgba(30, 86, 49, 0.07);
-}
-
-.lang-dd-check {
-  width: 15px;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-}
-
-@media (max-width: 850px) {
-  .lang-dd-trigger {
-    padding: 0 10px;
-  }
-
-  .lang-dd-label {
-    display: none;
-  }
-}
-
-
-/* ==========================================================================
    Mobile
    ========================================================================== */
 
@@ -691,166 +539,167 @@ body {
   margin-bottom: 16px;
 }
 
-/* AI insights — structured forecast cards */
-.ai-insights {
-  margin-top: 28px;
-  margin-bottom: 24px;
-}
-
-.ai-insights-head {
+/* insights strip */
+.insights-strip {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.ai-insights-head h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 26px;
-  margin: 0;
-  color: var(--green);
-}
-
-.ai-insights-head p {
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--green);
+  border: 1px solid var(--border-soft);
   font-size: 13px;
-  color: var(--muted);
-  margin: 2px 0 0;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
-.ai-insights-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  background: var(--panel);
-  border: 1px solid #e5e7eb;
-}
-
-.ai-card {
-  padding: 22px 24px;
-  border-right: 1px solid #e5e7eb;
-}
-
-.ai-card:last-child {
-  border-right: none;
-}
-
-.ai-card-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #dcfce7;
-  color: var(--green);
-  margin-bottom: 14px;
-}
-
-.ai-card-label {
-  display: block;
+.insights-label {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--green);
-  margin-bottom: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  padding-top: 2px;
 }
 
-.ai-card-value {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 28px;
-  line-height: 1.15;
-  color: var(--text);
-}
-
-.ai-card-unit {
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--muted);
-}
-
-.ai-card-desc {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--muted);
+.insights-strip ul {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
   margin: 0;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transform: translateY(-4px);
-  transition:
-    max-height 0.35s ease,
-    opacity 0.35s ease,
-    transform 0.35s ease,
-    margin 0.35s ease;
+  padding: 0;
+  list-style: none;
 }
 
-.ai-card:hover .ai-card-desc {
-  max-height: 120px;
-  opacity: 1;
-  transform: translateY(0);
-  margin-top: 10px;
+.insights-strip li {
+  color: #ffffff;
+  position: relative;
+  padding-left: 16px;
+  max-width: 360px;
 }
 
-@media (max-width: 900px) {
-  .ai-insights-cards {
-    grid-template-columns: 1fr;
-  }
-  .ai-card {
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .ai-card:last-child {
-    border-bottom: none;
-  }
+.insights-strip li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
 }
 
 /* ==========================================================================
-   CO2 impact — emissions avoided by collecting matched residue
+   Route economics — sale profit vs transport cost
    ========================================================================== */
+.econ {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 28px 60px;
+}
+
+.econ-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.econ-heading h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  margin: 0;
+}
+
+.econ-heading p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.econ-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  margin-bottom: 20px;
+}
+
+.econ-stat {
+  padding: 16px 20px;
+  border-right: 1px solid var(--border-soft);
+}
+
+.econ-stat:last-child {
+  border-right: none;
+}
+
+.econ-stat-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.econ-stat b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+}
+
+.econ-good {
+  color: var(--accent);
+}
+
+.econ-bad {
+  color: var(--text);
+}
+
+/*co2 emission avoided*/
 .impact {
   max-width: 1400px;
-  margin: 0 auto 60px;
-  padding: 32px 28px;
-  background: #eef7f0;
+  margin: 0 auto;
+  padding: 0 28px 60px;
 }
 
 .impact-heading {
-  margin-bottom: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .impact-heading h2 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 26px;
+  font-size: 28px;
   margin: 0;
-  color: var(--green);
 }
 
 .impact-heading p {
   font-size: 13px;
   color: var(--muted);
-  margin: 2px 0 0;
+  margin: 0;
 }
 
 .impact-stats {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
 }
 
 .impact-stat {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 20px 22px;
-  background: var(--panel);
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border-soft);
+}
+
+.impact-stat:last-child {
+  border-right: none;
 }
 
 .impact-footnote {
@@ -859,48 +708,28 @@ body {
   margin-top: 10px;
 }
 
-.impact-card-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #dcfce7;
-  color: var(--green);
-  flex-shrink: 0;
-}
-
-.impact-stat-body {
-  min-width: 0;
-}
-
 .impact-stat-label {
   display: block;
   font-size: 10px;
-  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--green);
+  color: var(--muted);
   margin-bottom: 6px;
 }
 
 .impact-stat b {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 21px;
-  line-height: 1.1;
-  color: var(--text);
+  font-size: 22px;
 }
 
 .impact-good {
-  color: var(--green) !important;
+  color: var(--accent);
 }
 
 .impact-unit {
-  font-family: inherit;
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 400;
   color: var(--muted);
   margin-left: 4px;
 }
@@ -909,7 +738,53 @@ body {
   .impact-stats {
     grid-template-columns: 1fr 1fr;
   }
+  .impact-stat:nth-child(2n) {
+    border-right: none;
+  }
+  .impact-stat {
+    border-bottom: 1px solid var(--border-soft);
+  }
 }
+
+/*language*/
+
+.lang-dropdown {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  min-width: 140px;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.lang-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lang-option:hover {
+  background: var(--bg-soft);
+}
+
+.lang-option.active {
+  color: var(--green);
+  font-weight: 600;
+}
+
 /* ==========================================================================
    Map + side panel layout
    ========================================================================== */
@@ -925,10 +800,6 @@ body {
   height: 640px;
   overflow: hidden;
   border: 1px solid var(--border);
-  /* Contain Leaflet's internal z-indexes (panes 400, controls 1000) so the
-     map can never paint over the fixed navbar (z-index 40) when scrolled. */
-  isolation: isolate;
-  z-index: 1;
 }
 
 .map {
@@ -947,100 +818,31 @@ body {
   min-height: 640px;
 }
 
-.hint-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.hint-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #e2edeb;
-  color: var(--green);
-  flex-shrink: 0;
-}
-
 .hint h3 {
-  margin: 0;
+  margin-top: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 18px;
-  color: var(--green);
+  font-size: 20px;
 }
 
-.hint > p {
+.hint p {
   font-size: 13px;
   color: var(--muted);
   line-height: 1.6;
-  margin: 0 0 12px;
 }
 
-.hint-legend {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--text);
-  margin-bottom: 12px;
-}
-
-.hint-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.hint-swatch {
+.swatch {
   display: inline-block;
-  width: 12px;
-  height: 12px;
-}
-
-.hint-routes {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0 0 16px;
-}
-
-.hint-plant-dot {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--plant-color, var(--green));
-  flex-shrink: 0;
-}
-
-.hint-plant-dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid var(--plant-color, var(--green));
-  opacity: 0.45;
-}
-
-.hint-divider {
-  border: none;
-  border-top: 1px solid var(--border-soft);
-  margin: 0 0 14px;
+  width: 10px;
+  height: 10px;
+  margin: 0 4px 0 8px;
+  vertical-align: middle;
 }
 
 .units-note {
   font-size: 11px;
   color: var(--muted);
   font-family: var(--font-mono);
-  margin: 0;
 }
 
 .card h3 {
@@ -1059,18 +861,18 @@ body {
 }
 
 .tier-high {
-  background: #d32f2f;
+  background: var(--green);
   color: #ffffff;
 }
 
 .tier-medium {
-  background: #f2c94c;
+  background: var(--accent);
   color: var(--text);
 }
 
 .tier-low {
-  background: var(--green);
-  color: #ffffff;
+  background: #e3e3e3;
+  color: #333333;
 }
 
 .tier-plant {
@@ -1529,6 +1331,17 @@ dd {
     width: auto;
   }
 
+  .econ-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .econ-stat:nth-child(2n) {
+    border-right: none;
+  }
+
+  .econ-stat {
+    border-bottom: 1px solid var(--border-soft);
+  }
 }
 
 /* ==========================================================================
@@ -1733,58 +1546,339 @@ dd {
   }
 }
 
-/* ==========================================================================    Crop mix — share bars in the district detail card
+/* ==========================================================================
+   Section fixes + mobile responsiveness
+   (appended on top of the base theme — restores the AI Insights / hint /
+   impact-card styles App.jsx renders, then adds phone breakpoints)
    ========================================================================== */
-.crop-mix {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
+
+/* ---- AI Insights — structured forecast cards (green accents, as approved) ---- */
+.ai-insights {
+  max-width: 1160px;
+  margin: 28px auto 0;
+  padding: 0 24px;
 }
 
-.crop-mix-row {
+.ai-insights-head h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  margin: 0 0 6px;
+  letter-spacing: 0.2px;
+  color: var(--green);
+}
+
+.ai-insights-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ai-insights-cards {
   display: grid;
-  grid-template-columns: 84px 1fr 46px;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--panel);
+  border: 1px solid #e5e7eb;
+  margin-top: 22px;
 }
 
-.crop-mix-name {
-  font-size: 12px;
+.ai-card {
+  padding: 22px 24px;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ai-card:last-child {
+  border-right: none;
+}
+
+.ai-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: var(--green);
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.ai-card-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+
+.ai-card-value {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.15;
   color: var(--text);
 }
 
-.crop-mix-bar {
-  display: block;
-  height: 7px;
-  background: var(--bg-soft);
+.ai-card-unit {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* description is hover-revealed on desktop, always visible on touch */
+.ai-card-desc {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-4px);
+  transition: max-height 0.35s ease, opacity 0.35s ease, transform 0.35s ease, margin 0.35s ease;
+}
+
+.ai-card:hover .ai-card-desc {
+  max-height: 120px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 10px;
+}
+
+/* ---- Map hint panel ---- */
+.hint {
   border: 1px solid var(--border);
+  padding: 20px;
 }
 
-.crop-mix-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
+.hint-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
-.crop-mix-pct {
-  font-size: 12px;
-  color: var(--muted);
-  text-align: right;
+.hint-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: #eaf6ee;
+  color: var(--green);
 }
 
-.crop-mix-foot {
-  display: block;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--muted);
-  font-family: var(--font-mono);
+.hint-header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--text);
 }
 
-/* ==========================================================================
-   2024 supply outlook — trend sparkline
-   ========================================================================== */
-.trend-spark {
-  display: block;
-  margin-top: 6px;
+.hint-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 6px 0 12px;
+}
+
+.hint-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.hint-swatch {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+}
+
+.hint-routes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint-plant-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2563eb;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #2563eb;
+}
+
+.hint-divider {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 14px 0 10px;
+}
+
+/* ---- Environmental impact — light-green band, spaced rounded cards (as approved) ---- */
+.impact {
+  max-width: 1400px;
+  margin: 0 auto 60px;
+  padding: 32px 28px;
+  background: #eef7f0;
+}
+
+.impact-heading h2 {
+  color: var(--green);
+}
+
+.impact-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  border: none;
+  background: transparent;
+}
+
+.impact-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.impact-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.impact-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.impact-stat-label {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.impact-good {
+  color: var(--green) !important;
+}
+
+/* ---- Phone breakpoints ---- */
+@media (max-width: 900px) {
+  /* AI Insights stack with divider lines; impact goes 2-across */
+  .ai-insights-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-card {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .ai-card:last-child {
+    border-bottom: none;
+  }
+
+  .impact-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (hover: none), (max-width: 700px) {
+  /* touch devices have no hover — always show the AI card descriptions */
+  .ai-card-desc {
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    margin-top: 10px;
+  }
+
+  .dashboard {
+    padding: 56px 14px 32px;
+  }
+
+  .hero-content {
+    padding: 120px 18px 40px;
+  }
+
+  .hero-stats {
+    width: calc(100% - 28px);
+  }
+
+  .map-wrap {
+    height: 320px;
+  }
+
+  .ai-insights,
+  .impact,
+  .explorer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .ai-insights {
+    margin-top: 24px;
+  }
+
+  .impact {
+    padding-bottom: 40px;
+  }
+
+  .explorer {
+    padding-top: 28px;
+    padding-bottom: 48px;
+  }
+
+  .layout {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* single-column impact cards so values don't cramp on phones */
+  .impact-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-title {
+    font-size: clamp(44px, 13vw, 64px);
+  }
+
+  .hero-btn {
+    padding: 12px 18px;
+    font-size: 13px;
+  }
+
+  .dashboard-heading h2,
+  .ai-insights-head h2,
+  .explorer-heading h2 {
+    font-size: 22px;
+  }
+
+  .ai-panel {
+    top: 70px;
+    left: 8px;
+    right: 8px;
+    max-height: calc(100vh - 84px);
+  }
 }

@@ -19,7 +19,7 @@ export default function SupplyExplorer({ districts, plants, matches }) {
       districts.reduce(
         (s, d) =>
           s +
-          (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0),
+          (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? 0),
         0
       ),
     [districts]
@@ -65,7 +65,7 @@ export default function SupplyExplorer({ districts, plants, matches }) {
 
 function SupplyTab({ districts, total, t }) {
   const supplyOf = (d) =>
-    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0;
+    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? 0;
   const rows = [...districts].sort((a, b) => supplyOf(b) - supplyOf(a));
   return (
     <>
@@ -93,13 +93,13 @@ function SupplyTab({ districts, total, t }) {
               </td>
               <td>
                 {fmt(
-                  d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018
+                  d.predicted_supply_2026 ?? d.predicted_supply_2024
                 )}{" "}
                 units
               </td>
               <td>
-                {d.confidence_score_2026 ?? d.confidence_score_2024 ?? d.confidence_score_heuristic}{" "}
-                ({d.confidence_label_2026 ?? d.confidence_label_2024 ?? d.confidence_label})
+                {d.confidence_score_2026 ?? d.confidence_score_2024}{" "}
+                ({d.confidence_label_2026 ?? d.confidence_label_2024})
               </td>
               <td>{d.harvest_window}</td>
               <td>{d.residue_type}</td>
@@ -192,7 +192,7 @@ function PlantsTab({ plants, t }) {
 
 function LeftoverTab({ unmatched, total, t }) {
   const supplyOf = (d) =>
-    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0;
+    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? 0;
   const rows = [...unmatched].sort((a, b) => supplyOf(b) - supplyOf(a));
   return (
     <>
@@ -221,7 +221,7 @@ function LeftoverTab({ unmatched, total, t }) {
                 </td>
                 <td>
                   {fmt(
-                    d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018
+                    d.predicted_supply_2026 ?? d.predicted_supply_2024
                   )}{" "}
                   units
                 </td>

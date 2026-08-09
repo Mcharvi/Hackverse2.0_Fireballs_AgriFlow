@@ -80,12 +80,14 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 def district_supply(d: dict) -> float:
     """Latest available forecast for a district — 2026 primary, with the 2024
-    and 2018 forecasts as fallbacks for older data layers.
+    forecast as fallback. The legacy 2018 forecast is never read anywhere:
+    all consumers use this function, so old numbers can't leak into matches,
+    impact, insights, or the UI.
 
     Uses `is not None` (not truthiness) so a district with a genuine zero
     supply value isn't silently promoted to an older, non-zero forecast.
     """
-    for key in ("predicted_supply_2026", "predicted_supply_2024", "predicted_supply_2018"):
+    for key in ("predicted_supply_2026", "predicted_supply_2024"):
         value = d.get(key)
         if value is not None:
             return float(value)
@@ -97,8 +99,8 @@ def load_districts(conn: sqlite3.Connection) -> list[dict]:
     return [
         dict(r)
         for r in conn.execute(
-            "SELECT district, latitude, longitude, predicted_supply_2018, "
-            "predicted_supply_2024, predicted_supply_2026 FROM districts"
+            "SELECT district, latitude, longitude, predicted_supply_2024, "
+            "predicted_supply_2026 FROM districts"
         )
     ]
 

@@ -248,13 +248,29 @@ def health():
     return {"status": "ok" if db_ok else "db_missing", "db_path": str(DB_PATH)}
 
 
+# Legacy 2017/2018 columns from the old data layer. The whole app now runs on
+# the 2026 forecast family (matching.district_supply is 2026-primary), so these
+# are stripped from the API response — nothing downstream can read the old
+# numbers, and the JSON surface stays clean for the frontend/judges.
+LEGACY_DISTRICT_COLUMNS = {
+    "baseline_supply_2017", "rolling_3yr_supply", "trend_forecast_2018",
+    "predicted_supply_2018", "trend_r2", "confidence_score_heuristic",
+    "confidence_label", "cropland_2017", "avg_precipitation_2017",
+    "avg_elevation_2017", "site_count_2017", "rolling_3yr_2022",
+}
+
+
+def _trim_district(d: dict) -> dict:
+    return {k: v for k, v in d.items() if k not in LEGACY_DISTRICT_COLUMNS}
+
+
 @app.get("/districts")
 def get_districts():
     rows = load_all_districts()
     mix = load_crop_composition()
     for r in rows:
         r["crop_mix"] = mix.get(r["district"], [])
-    return rows
+    return [_trim_district(r) for r in rows]
 
 
 @app.get("/districts/{district_name}")
@@ -262,7 +278,7 @@ def get_district(district_name: str):
     mix = load_crop_composition()
     for d in load_all_districts():
         if d["district"] == district_name:
-            return {**d, "crop_mix": mix.get(district_name, [])}
+            return _trim_district({**d, "crop_mix": mix.get(district_name, [])})
     raise HTTPException(status_code=404, detail=f"District '{district_name}' not found")
 
 

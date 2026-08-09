@@ -379,7 +379,7 @@ def main() -> None:
                           "crop_composition", "route_economics")
         }
         top_districts = conn.execute(
-            """SELECT district, COALESCE(predicted_supply_2026, predicted_supply_2018),
+            """SELECT district, predicted_supply_2026,
                       confidence_label_2026, supply_tier
                FROM districts ORDER BY predicted_supply_2026 DESC LIMIT 3"""
         ).fetchall()

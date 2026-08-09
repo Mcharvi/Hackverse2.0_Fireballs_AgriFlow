@@ -26,7 +26,7 @@ const topCrop = (d) => (d?.crop_mix?.[0]?.crop ? cap(d.crop_mix[0].crop) : null)
 
 // 2026 supply outlook (falls back to 2024/2018 forecasts for older backends).
 const supply2026 = (d) =>
-  (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? d.predicted_supply_2018 ?? 0);
+  (d.predicted_supply_2026 ?? d.predicted_supply_2024 ?? 0);
 
 // Inline SVG sparkline for a "year:value,..." supply_trend string.
 function TrendSpark({ trend }) {
@@ -547,8 +547,8 @@ function DistrictCard({ d, onClose }) {
         )}
         <dt>Confidence</dt>
         <dd>
-          {d.confidence_score_2026 ?? d.confidence_score_2024 ?? d.confidence_score_heuristic}{" "}
-          ({d.confidence_label_2026 ?? d.confidence_label_2024 ?? d.confidence_label})
+          {d.confidence_score_2026 ?? d.confidence_score_2024}{" "}
+          ({d.confidence_label_2026 ?? d.confidence_label_2024})
         </dd>
         <dt>Residue type</dt>
         <dd title={d.residue_type_source}>{d.residue_type}</dd>
@@ -578,10 +578,12 @@ function DistrictCard({ d, onClose }) {
             </dd>
           </>
         )}
-        <dt>Baseline (2017)</dt>
-        <dd>{fmt(d.baseline_supply_2017)} units</dd>
-        <dt>Sites aggregated</dt>
-        <dd>{d.site_count_2017}</dd>
+        <dt>2026 forecast change</dt>
+        <dd>
+          {d.supply_2026_change_pct != null
+            ? `${d.supply_2026_change_pct > 0 ? "+" : ""}${d.supply_2026_change_pct}% vs prior forecast`
+            : "—"}
+        </dd>
       </dl>
       <button className="close" onClick={onClose}>
         Close
@@ -800,6 +802,12 @@ function InsightsSection({ data, loading }) {
   const maxUtil = util.length
     ? Math.max(...util.map((p) => p.utilization_pct ?? 0))
     : 0;
+  const fullUtilCount = util.filter((p) => (p.utilization_pct ?? 0) >= 100).length;
+  const minUtilPlant = util.length
+    ? util.reduce((a, b) =>
+        (a.utilization_pct ?? 0) <= (b.utilization_pct ?? 0) ? a : b
+      )
+    : null;
 
   const cards = [
     {
@@ -841,7 +849,10 @@ function InsightsSection({ data, loading }) {
       label: "Plant utilization",
       value: `${maxUtil}%`,
       unit: "",
-      desc: `All ${util.length} plants operate at full capacity, achieving ${maxUtil}% utilization.`,
+      desc:
+        fullUtilCount === util.length
+          ? `All ${util.length} plants operate at full capacity, achieving ${maxUtil}% utilization.`
+          : `${fullUtilCount} of ${util.length} plants run at full capacity; ${minUtilPlant?.plant_name ?? "the lowest"} is at ${fmt(minUtilPlant?.utilization_pct ?? 0)}% utilization.`,
     },
   ];
 
