@@ -14,7 +14,6 @@ export const api = {
   districts: () => get("/districts"),
   plants: () => get("/plants"),
   matches: () => get("/matches"),
-  sustainability: () => get("/sustainability"),
   insights: () => get("/assistant/insights"),
   impact: () => get("/impact"),
   simulatePlant: async ({ latitude, longitude, annual_capacity, plant_name }) => {
