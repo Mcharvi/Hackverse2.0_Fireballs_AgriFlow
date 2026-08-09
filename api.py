@@ -18,6 +18,7 @@ rename this file to main.py, or change that import to `from api import app`.
 """
 
 import sqlite3
+import time
 from pathlib import Path
 from typing import Literal
 
@@ -26,6 +27,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from matching import COST_PER_TON_KM, compute_matches, district_supply  # reuse Person B's real matching logic
+from profit_analysis import (  # route-economics math (shared with the CLI)
+    DEFAULT_RESIDUE_PRICE_PER_TONNE,
+    DEFAULT_ROUND_TRIP_FACTOR,
+    compute_route_economics,
+)
 from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
 
 from impact import compute_impact  # CO2-avoided metric
@@ -57,11 +63,16 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 _match_cache: dict[float, list[dict]] = {}
 
+# Process-lifetime economics cache — recomputed whenever matches change.
+_economics_cache: dict | None = None
+
 
 def _invalidate_match_cache() -> None:
     """Call this if the DB is ever mutated at runtime (not currently needed,
     but makes the cache safe to keep when a write path is added later)."""
+    global _economics_cache
     _match_cache.clear()
+    _economics_cache = None
 
 
 # ---------------------------------------------------------------------------
@@ -180,13 +191,48 @@ def get_impact() -> dict:
     districts = load_all_districts()
     matches = get_matches()
     return compute_impact(districts, matches)
-
-
 @app.get("/impact")
 def get_impact_route():
     """CO2-avoided-by-matching metric — see impact.py for methodology
     and assumptions."""
     return get_impact()
+
+
+def get_route_economics() -> dict:
+    """Network profit analysis over the current matches.
+
+    Same math as `python profit_analysis.py` (compute_route_economics in
+    profit_analysis.py) applied to the cached matches, so every number is
+    consistent with what the map and the rest of the API report. Cached per
+    process like the matches themselves."""
+    global _economics_cache
+    if _economics_cache is None:
+        raw_matches = [
+            {
+                "district": m["district"],
+                "plant_id": m["matched_plant_id"],
+                "allocated_quantity": m["matched_supply"],
+                "distance_km": m["distance_km"],
+            }
+            for m in get_matches()
+        ]
+        _economics_cache = compute_route_economics(
+            raw_matches,
+            price=DEFAULT_RESIDUE_PRICE_PER_TONNE,
+            round_trip=DEFAULT_ROUND_TRIP_FACTOR,
+            rate=COST_PER_TON_KM,
+            plant_names={p["plant_id"]: p["plant_name"] for p in load_all_plants()},
+        )
+    return _economics_cache
+
+
+@app.get("/economics")
+def get_economics_route():
+    """Network profit analysis: totals, per-plant P&L, and per-route
+    revenue/transport/profit/margin. See profit_analysis.py for the model
+    and assumptions. Data/chat layer only — deliberately not shown in the UI."""
+    return get_route_economics()
+
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -287,11 +333,23 @@ def assistant_query(payload: AssistantQuery):
         language=payload.language,
         history=[m.model_dump() for m in payload.history],
         load_all_districts=load_all_districts,
-        load_all_plants=load_all_plants,
-        get_plant_utilization=get_plant_utilization,
+        load_all_plants=load_all_plants,        get_plant_utilization=get_plant_utilization,
         get_matches=get_matches,
         get_impact=get_impact,
+        simulate_plant=_simulate_for_assistant,
+        get_route_economics=get_route_economics,
     )
+
+
+# ---------------------------------------------------------------------------
+# Process-lifetime insights cache — TTL so repeated dashboard loads don't
+# re-hit OpenAI. The payload is a pure function of the same loaders (which
+# only change when the DB is re-seeded = a process restart on Render), so a
+# 5-minute window is plenty for a demo: the second load is instant, and a
+# slow/stale LLM call can't stall the page in front of judges.
+# ---------------------------------------------------------------------------
+_insights_cache: dict = {"ts": 0.0, "payload": None}
+INSIGHTS_TTL_SECONDS = 300  # 5 minutes
 
 
 @app.get("/assistant/insights")
@@ -299,18 +357,23 @@ def assistant_insights():
     """Proactive, unprompted insight bullets for dashboard load.
 
     GET (not POST) since it takes no user input — same real data every
-    caller sees, so a CDN/browser can cache this if we ever want it to.
+    caller sees. Cached in-process for INSIGHTS_TTL_SECONDS so dashboard
+    loads don't hit OpenAI on every refresh.
     Never raises: generate_insights() fails soft internally and returns a
     deterministic fallback if the OpenAI call errors, so a flaky LLM call
     can't take down the dashboard on load.
     """
-    return generate_insights(
-        load_all_districts=load_all_districts,
-        load_all_plants=load_all_plants,
-        get_plant_utilization=get_plant_utilization,
-        get_matches=get_matches,
-        get_impact=get_impact
-    )
+    now = time.monotonic()
+    if _insights_cache["payload"] is None or now - _insights_cache["ts"] > INSIGHTS_TTL_SECONDS:
+        _insights_cache["payload"] = generate_insights(
+            load_all_districts=load_all_districts,
+            load_all_plants=load_all_plants,
+            get_plant_utilization=get_plant_utilization,
+            get_matches=get_matches,
+            get_impact=get_impact,
+        )
+        _insights_cache["ts"] = now
+    return _insights_cache["payload"]
 
 
 # ---------------------------------------------------------------------------
@@ -410,3 +473,19 @@ def simulate_plant(payload: SimulatedPlantInput):
             for m in simulated_matches
         ],
     }
+
+
+def _simulate_for_assistant(
+    latitude: float, longitude: float, annual_capacity: float, plant_name: str = "Simulated Plant"
+) -> dict:
+    """Thin adapter so the LLM's simulate_plant tool runs the exact same
+    engine as POST /simulate/plant without going through HTTP: same pydantic
+    boundary, same function the route calls."""
+    return simulate_plant(
+        SimulatedPlantInput(
+            latitude=latitude,
+            longitude=longitude,
+            annual_capacity=annual_capacity,
+            plant_name=plant_name,
+        )
+    )

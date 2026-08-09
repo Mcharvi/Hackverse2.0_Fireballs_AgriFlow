@@ -99,6 +99,7 @@ DROP TABLE IF EXISTS plants;
 DROP TABLE IF EXISTS predictions;
 DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS crop_composition;
+DROP TABLE IF EXISTS route_economics;
 
 CREATE TABLE districts (
     district                    TEXT PRIMARY KEY,
@@ -174,6 +175,24 @@ CREATE TABLE crop_composition (
     croparea_ha  REAL,
     share_pct    REAL,
     PRIMARY KEY (district, crop)
+);
+
+-- Populated by `python profit_analysis.py --write`; the API computes the
+-- same view live from the cached matches, so this table is the persisted
+-- artifact (mirrors how matching.py writes the `matches` table).
+CREATE TABLE route_economics (
+    district           TEXT NOT NULL,
+    plant_id           TEXT NOT NULL,
+    allocated_quantity REAL,
+    distance_km        REAL,
+    revenue            REAL,
+    transport_cost     REAL,
+    profit             REAL,
+    margin_pct         REAL,
+    residue_price      REAL,
+    haulage_rate       REAL,
+    round_trip_factor  REAL,
+    PRIMARY KEY (district, plant_id)
 );
 """
 
@@ -356,7 +375,8 @@ def main() -> None:
 
         counts = {
             table: conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            for table in ("districts", "plants", "predictions", "matches", "crop_composition")
+            for table in ("districts", "plants", "predictions", "matches",
+                          "crop_composition", "route_economics")
         }
         top_districts = conn.execute(
             """SELECT district, COALESCE(predicted_supply_2026, predicted_supply_2018),

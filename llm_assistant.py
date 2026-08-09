@@ -30,7 +30,7 @@ import difflib
 import json
 import os
 
-from matching import district_supply as _latest_supply  # single source of truth; no duplicate fallback logic
+from matching import COST_PER_TON_KM, district_supply as _latest_supply  # single source of truth; no duplicate fallback logic
 
 from openai import OpenAI
 
@@ -81,7 +81,14 @@ SYSTEM_PROMPT = (
     "once, or call several different functions, if the question needs "
     "several pieces of data (e.g. comparing multiple districts). Quantities "
     "are dimensionless dataset biomass units, not tonnes. Keep answers to "
-    "1-3 plain sentences unless the question genuinely needs a list."
+    "1-3 plain sentences unless the question genuinely needs a list. "
+    "Routing facts: the district-to-plant allocation is computed by an exact "
+    "min-cost-flow optimizer that globally minimizes total haul distance for "
+    "everything the plants can absorb, so the current routing is optimal by "
+    "construction. Leftover supply exists because total plant capacity is less "
+    "than total supply — it is a capacity limit, not a routing inefficiency. "
+    "Use get_haul_stats for any haul-cost, ton-km, or route-ranking question. "
+    "Use get_profit_analysis for any profit, revenue, or margin question."
 )
 
 TOOLS = [
@@ -141,8 +148,7 @@ TOOLS = [
                 "required": ["district"],
             },
         },
-    },
-    {
+    },    {
         "type": "function",
         "function": {
             "name": "get_plant_details",
@@ -153,6 +159,57 @@ TOOLS = [
                     "plant": {"type": "string", "description": "Plant name or plant_id"}
                 },
                 "required": ["plant"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_district_matches",
+            "description": "Get which plant(s) a district's supply is currently matched to, with allocated quantity, distance, and pickup order. Use this for any 'which plant is <district> matched to', 'where does <district> supply go', or 'is <district> matched' question. Returns the match rows, or an empty list with status 'unmatched' if the district has no match.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "district": {"type": "string", "description": "District name, e.g. 'Amreli'"}
+                },
+                "required": ["district"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_haul_stats",
+            "description": "Get haul-distance and haul-cost statistics for the current routing: total ton-km, total estimated haul cost in rupees (at a fixed cost per ton-km), average km per unit, and every route with its distance and cost, sorted by distance. Optionally filter to one district. Use this for any question about haul cost, ton-km, transport economics, cheapest/longest/expensive routes, or how much a route costs to ship.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "district": {"type": "string", "description": "Optional district name to limit the stats to that district's routes"}
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_profit_analysis",
+            "description": "Get the stored network profit analysis: total revenue, transport cost, profit and margin at the current residue price and haulage rate, per-plant P&L, every route's revenue/transport/profit/margin, and the best and worst routes. worst_routes is sorted lowest margin first and best_routes highest first; pick the first entry for 'worst'/'best'. Each route's 'district' is the supply source and 'matched_plant_name' is its destination plant, so a question about district X means the row with district X. Use this for any question about profit, revenue, margin, or how profitable the supply chain or a specific route is.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "simulate_plant",
+            "description": "Simulate building a new processing plant near a named district with a given annual capacity, using the same optimizer as the 'Simulate a new plant' feature. Use this for any 'what if I build a plant at/near <district> with <N> capacity' question. Returns the leftover supply before/after, the reduction, and the new plant's utilization.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "district": {"type": "string", "description": "District the new plant would be near, e.g. 'Porbandar'"},
+                    "annual_capacity": {"type": "number", "description": "Annual capacity of the new plant in biomass units"},
+                    "plant_name": {"type": "string", "description": "Optional name for the new plant"}
+                },
+                "required": ["district", "annual_capacity"],
             },
         },
     },
@@ -256,13 +313,145 @@ def _get_plant_details(args, get_plant_utilization, **_):
     return {**p, "note": f"Interpreted '{query}' as '{p['plant_name']}'."} if was_fuzzy else p
 
 
+def _get_haul_stats(args, get_matches, load_all_districts, get_plant_utilization, **_):
+    """Route-level haul economics straight from the same get_matches() the map
+    renders: ton-km and ₹ haul cost per route plus totals. Costs use the same
+    fixed COST_PER_TON_KM rate the matching engine reports, so chat answers
+    always match the backend numbers."""
+    plant_name = {p["plant_id"]: p["plant_name"] for p in get_plant_utilization()}
+    matches = get_matches()
+    note = None
+    if args.get("district"):
+        query = args["district"]
+        matched, was_fuzzy = _resolve_name(query, [d["district"] for d in load_all_districts()])
+        if not matched:
+            return {"error": f"No district matching '{query}' found."}
+        matches = [m for m in matches if m["district"] == matched]
+        if was_fuzzy:
+            note = f"Interpreted '{query}' as '{matched}'."
+    routes = []
+    total_ton_km = 0.0
+    total_supply = 0.0
+    for m in sorted(matches, key=lambda r: (r["distance_km"], r["district"])):
+        ton_km = m["matched_supply"] * m["distance_km"]
+        total_ton_km += ton_km
+        total_supply += m["matched_supply"]
+        routes.append(
+            {
+                "district": m["district"],
+                "matched_plant_id": m["matched_plant_id"],
+                "matched_plant_name": plant_name.get(m["matched_plant_id"], m["matched_plant_id"]),
+                "matched_supply": m["matched_supply"],
+                "distance_km": m["distance_km"],
+                "haul_ton_km": round(ton_km, 1),
+                "haul_cost_inr": round(ton_km * COST_PER_TON_KM, 1),
+            }
+        )
+    out = {
+        "cost_per_ton_km_inr": COST_PER_TON_KM,
+        "route_count": len(routes),
+        "total_ton_km": round(total_ton_km, 1),
+        "total_haul_cost_inr": round(total_ton_km * COST_PER_TON_KM, 1),
+        "avg_km_per_unit": round(total_ton_km / total_supply, 1) if total_supply else 0.0,
+        "routes_sorted_by_distance_ascending": routes,
+    }
+    if note:
+        out["note"] = note
+    return out
+
+
+def _get_profit_analysis(args, get_route_economics, **_):
+    """Returns the stored profit-analysis view (same numbers as /economics),
+    so the model can narrate revenue/profit/margin without guessing."""
+    if get_route_economics is None:
+        return {"error": "The profit analysis is not available right now."}
+    return get_route_economics()
+
+
+def _get_district_matches(args, get_matches, load_all_districts, get_plant_utilization, **_):
+    """Returns a district's actual match rows from the same get_matches() the
+    map and explorer tables render, so the assistant can never contradict the
+    on-screen routes (the failure mode this tool exists to prevent)."""
+    query = args.get("district", "")
+    districts = load_all_districts()
+    matched, was_fuzzy = _resolve_name(query, [d["district"] for d in districts])
+    if not matched:
+        return {"error": f"No district matching '{query}' found."}
+    plant_name = {p["plant_id"]: p["plant_name"] for p in get_plant_utilization()}
+    rows = [
+        {
+            "matched_plant_id": m["matched_plant_id"],
+            "matched_plant_name": plant_name.get(m["matched_plant_id"], m["matched_plant_id"]),
+            "matched_supply": m["matched_supply"],
+            "distance_km": m["distance_km"],
+            "pickup_order": m["pickup_order"],
+        }
+        for m in sorted(
+            (x for x in get_matches() if x["district"] == matched),
+            key=lambda r: r["pickup_order"] or 0,
+        )
+    ]
+    out = {"district": matched, "match_count": len(rows), "matches": rows}
+    if not rows:
+        out["status"] = "unmatched"
+    if was_fuzzy:
+        out["note"] = f"Interpreted '{query}' as '{matched}'."
+    return out
+
+
+def _simulate_plant(args, simulate_plant, load_all_districts, **_):
+    """Runs the plant-siting simulator (same engine as POST /simulate/plant)
+    for a district named in natural language, so the model can narrate a real
+    before/after answer instead of guessing at the numbers."""
+    query = args.get("district", "")
+    if not query:
+        return {"error": "Provide a district name (e.g. 'Porbandar')."}
+    districts = load_all_districts()
+    matched, was_fuzzy = _resolve_name(query, [d["district"] for d in districts])
+    if not matched:
+        return {"error": f"No district matching '{query}' found."}
+    if simulate_plant is None:
+        return {"error": "The simulator is not available right now."}
+    try:
+        capacity = float(args.get("annual_capacity"))
+    except (TypeError, ValueError):
+        return {"error": "'annual_capacity' must be a number (biomass units)."}
+    if capacity <= 0:
+        return {"error": "'annual_capacity' must be positive."}
+    d = next(x for x in districts if x["district"] == matched)
+    plant_name = args.get("plant_name") or f"Simulated Plant near {matched}"
+    result = simulate_plant(d["latitude"], d["longitude"], capacity, plant_name)
+    out = {
+        "district": matched,
+        "latitude": d["latitude"],
+        "longitude": d["longitude"],
+        "plant_name": plant_name,
+        "annual_capacity_units": capacity,
+        "leftover_before_units": result["baseline"]["leftover"],
+        "leftover_after_units": result["simulated"]["leftover"],
+        "leftover_reduction_units": result["leftover_reduction"],        "new_plant_utilization_pct": result["simulated_plant_utilization_pct"],
+        "new_plant_allocated_units": result["simulated_plant_allocated"],
+        "haul_cost_before_inr": result["baseline"].get("haul_cost"),
+        "haul_cost_after_inr": result["simulated"].get("haul_cost"),
+        "haul_cost_saving_inr": round(
+            result["baseline"].get("haul_cost", 0.0) - result["simulated"].get("haul_cost", 0.0), 1
+        ),
+    }
+    if was_fuzzy:
+        out["note"] = f"Interpreted '{query}' as '{matched}'."
+    return out
+
+
 DISPATCH = {
     "get_district_supply": _get_district_supply,
     "get_underused_plants": _get_underused_plants,
     "get_unmatched_districts": _get_unmatched_districts,
-    "get_top_supply_districts": _get_top_supply_districts,
-    "get_nearest_plant": _get_nearest_plant,
+    "get_top_supply_districts": _get_top_supply_districts,    "get_nearest_plant": _get_nearest_plant,
     "get_plant_details": _get_plant_details,
+    "get_district_matches": _get_district_matches,
+    "get_haul_stats": _get_haul_stats,
+    "get_profit_analysis": _get_profit_analysis,
+    "simulate_plant": _simulate_plant,
 }
 
 
@@ -272,8 +461,9 @@ def answer_question(
     load_all_districts,
     load_all_plants,
     get_plant_utilization,
-    get_matches,
-    get_impact=None,
+    get_matches,    get_impact=None,
+    simulate_plant=None,
+    get_route_economics=None,
     language: str = "en",
     history: list[dict] | None = None,
 ) -> dict:
@@ -326,13 +516,14 @@ def answer_question(
                     args = {}
 
                 handler = DISPATCH.get(fn_name)
-                if handler:
-                    result = handler(
+                if handler:                    result = handler(
                         args,
                         load_all_districts=load_all_districts,
                         load_all_plants=load_all_plants,
                         get_plant_utilization=get_plant_utilization,
                         get_matches=get_matches,
+                        simulate_plant=simulate_plant,
+                        get_route_economics=get_route_economics,
                     )
                 else:
                     result = {"error": f"Unknown function '{fn_name}'"}
