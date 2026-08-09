@@ -330,6 +330,18 @@ export default function App() {
     });
   }
 
+  // "Clear" closes the simulator completely (not just the marker): exit sim
+  // mode so the map stops accepting placement clicks and the panel returns
+  // to the normal district/plant view. Otherwise the app stays armed and the
+  // very next map click re-opens the simulator — which reads as the sim
+  // "restarting on its own" after a run.
+  function clearSimulation() {
+    setSimMode(false);
+    setSimMarker(null);
+    setSimResult(null);
+    setSimError(null);
+  }
+
   function handleSimulateClick() {
     if (!simMode) toggleSimMode();
     scrollToDashboard();
@@ -358,8 +370,10 @@ export default function App() {
     setQuestion("");
   }
 
-  async function ask() {
-    const q = question.trim();
+  // `qArg` lets suggestion chips pass their text directly — `setQuestion` is
+  // async, so reading `question` from state here would see the stale value.
+  async function ask(qArg) {
+    const q = (qArg ?? question).trim();
     if (!q || busy) return;
     setBusy(true);
     setQuestion("");
@@ -430,11 +444,7 @@ export default function App() {
                 name={simName}
                 setName={setSimName}
                 onRun={runSimulation}
-                onClear={() => {
-                  setSimMarker(null);
-                  setSimResult(null);
-                  setSimError(null);
-                }}
+                onClear={clearSimulation}
                 running={simRunning}
                 result={simResult}
                 error={simError}

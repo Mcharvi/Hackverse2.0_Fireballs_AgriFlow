@@ -104,8 +104,10 @@ desktop.ini
 # =========================
 
 # Pitch deck, internal plan, and reference screenshots stay on disk but
-# out of version control.
+# out of version control. (Hackverse 2.0 Final Round.pptx is a temporary
+# organizer template on disk — not part of the repo.)
 Hackverse2.0_AgriFlow.pptx
+Hackverse 2.0 Final Round.pptx
 agriflow-24hr-hackathon-plan-v2.md
 endpoints.jpeg
 

@@ -32,7 +32,7 @@ from profit_analysis import (  # route-economics math (shared with the CLI)
     DEFAULT_ROUND_TRIP_FACTOR,
     compute_route_economics,
 )
-from llm_assistant import answer_question, generate_insights  # Granite/OpenAI function-calling layer
+from llm_assistant import answer_question, generate_insights  # OpenAI function-calling layer (GPT-4o-mini)
 
 from impact import compute_impact  # CO2-avoided metric
 
